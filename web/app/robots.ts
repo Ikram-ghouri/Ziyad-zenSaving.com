@@ -1,0 +1,1 @@
+import type { MetadataRoute } from 'next';import { siteUrl } from '@/lib/data';export default function robots():MetadataRoute.Robots{return {rules:process.env.ALLOW_INDEXING==='true'?{userAgent:'*',allow:'/'}:{userAgent:'*',disallow:'/'},sitemap:`${siteUrl}/sitemap.xml`}}

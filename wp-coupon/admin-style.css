@@ -1,0 +1,17 @@
+/* Admin Styles */
+
+#screen-meta-links {
+    display: none !important;
+}
+
+#dashboard-widgets-wrap {
+    display: none !important;
+}
+
+#footer-thankyou {
+    display: none !important;
+}
+
+#footer-upgrade{
+    display: none !important;
+}

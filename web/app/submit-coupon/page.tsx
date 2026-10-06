@@ -1,0 +1,1 @@
+import { SubmissionForm } from '@/components/interactive';export default function Submit(){return <><section className="page-hero"><span className="eyebrow">Help another shopper</span><h1>Share a coupon</h1><p>Found an offer worth passing on? Send it to our team and we’ll review it before publication.</p></section><div className="content-wrap"><SubmissionForm/></div></>}
