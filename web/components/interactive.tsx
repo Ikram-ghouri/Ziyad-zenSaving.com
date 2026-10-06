@@ -18,7 +18,7 @@ export function Header({ name }: { name:string }) {
   const [open,setOpen]=useState(false);
   const pathname=usePathname();
   const links=[['All stores','/stores'],['Top deals','/deals'],['Special discounts','/discounts'],['Categories','/categories'],['Guides & reviews','/blog'],['Saved offers','/saved']];
-  const isActive=(href:string)=>pathname===href||(href==='/stores'&&pathname.startsWith('/store/'))||(href==='/categories'&&(pathname.startsWith('/coupon-category/')||pathname.startsWith('/coupon-tag/')))||(href==='/discounts'&&pathname.startsWith('/discounts/'))||(href==='/blog'&&pathname.startsWith('/blog/'));
+  const isActive=(href:string)=>pathname===href||(href==='/stores'&&pathname.startsWith('/store/'))||(href==='/categories'&&(pathname.startsWith('/coupon-category/')||pathname.startsWith('/coupon-tag/')))||(href==='/discounts'&&pathname.startsWith('/discounts/'))||(href==='/blog'&&(pathname==='/'||pathname.startsWith('/blog/')));
   return <header><div className="header-inner"><Link href="/" className="brand"><span className="brand-icon"><Leaf size={24}/></span>{name}<span className="brand-dot">.</span></Link><nav className={open?'open':''} aria-label="Main navigation">{links.map(([t,h])=>{const active=isActive(h);return <Link className={active?'active':''} aria-current={active?'page':undefined} key={h} href={h} onClick={()=>setOpen(false)}>{t}</Link>;})}</nav><SearchBox/><button className="mobile-menu" aria-label="Toggle navigation" aria-expanded={open} onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button><Link className={`submit-link ${pathname==='/submit-coupon'?'active':''}`} aria-current={pathname==='/submit-coupon'?'page':undefined} href="/submit-coupon">Share a coupon <ArrowUpRight size={16}/></Link></div></header>;
 }
 
