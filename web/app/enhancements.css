@@ -1212,6 +1212,15 @@ footer {
   background: #fff0dc;
   color: var(--green) !important;
 }
+.store-tile .store-tile-logo {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  justify-content: center !important;
+  padding: 0;
+  text-align: center;
+  line-height: 1;
+}
 .audience-grid a {
   background: #fff;
   min-height: 92px;
