@@ -1392,3 +1392,25 @@ footer {
     font-size: 22px;
   }
 }
+
+/* Keep coupon dialogs centered after the global CSS reset. */
+.modal[open] {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal[open]::backdrop {
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 620px) {
+  .modal[open] {
+    width: calc(100% - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 24px 20px;
+  }
+}
