@@ -333,6 +333,20 @@ footer {
 .blog-featured {
   padding-top: 72px;
 }
+.blog-deals {
+  padding: 10px 0 20px;
+  background: var(--cream);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.blog-deals .content-wrap {
+  max-width: 1230px;
+  padding-top: 75px;
+  padding-bottom: 75px;
+}
+.blog-deals .coupon-grid {
+  text-align: left;
+}
 .blog-section-title {
   text-align: center;
   max-width: 780px;
@@ -1327,6 +1341,11 @@ footer {
 }
 .discount-icon {
   background: #fff0dc;
+}
+.discount-hero .hero-pills span {
+  color: var(--ink);
+  border-color: #eadfce;
+  box-shadow: 0 5px 16px #00000014;
 }
 .discount-how {
   background:

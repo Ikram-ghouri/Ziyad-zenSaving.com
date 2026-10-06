@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
-import { getCatalog } from "@/lib/data";
+import { CouponCard } from "@/components/interactive";
+import { demo, getCatalog } from "@/lib/data";
 import type { Post } from "@/lib/types";
 
 const channels = [
@@ -47,23 +48,32 @@ function StoryCard({ post }: { post: Post }) {
 }
 
 export default async function BlogLanding() {
-  const { posts, stores } = await getCatalog();
+  const { posts, stores, coupons } = await getCatalog();
   const categories = [...new Set(posts.map((post) => post.category))];
+  const topOffers = [...coupons]
+    .filter((coupon) => !coupon.is_expired)
+    .sort((a, b) => b.percent_success - a.percent_success || b.used - a.used)
+    .slice(0, 3);
 
   return (
     <>
+      {demo && (
+        <div className="demo-banner">
+          Preview mode · Offers shown here are sample content
+        </div>
+      )}
       <section className="blog-showcase">
         <div className="blog-showcase-inner">
-          <span>The Zen edit</span>
+          <span>Smarter savings start here</span>
           <h1>
-            Ideas for <em>smarter shopping</em>
+            Good finds. <em>Better choices.</em>
           </h1>
           <p>
-            Practical guides, honest reviews and useful advice that help every
-            purchase feel like the right one.
+            Discover current offers, trusted stores and practical guidance for
+            spending thoughtfully and saving on the things you already need.
           </p>
-          <Link href="#stories">
-            Explore latest guides <ArrowRight size={18} />
+          <Link href="#top-offers">
+            Explore today&apos;s offers <ArrowRight size={18} />
           </Link>
           <div className="blog-dots" aria-hidden="true">
             <i />
@@ -91,6 +101,31 @@ export default async function BlogLanding() {
           View all stores <ArrowRight size={16} />
         </Link>
       </section>
+
+      {topOffers.length > 0 && (
+        <section className="blog-deals" id="top-offers">
+          <div className="content-wrap">
+            <header className="blog-section-title">
+              <span>Handpicked savings</span>
+              <h2>
+                Today&apos;s <em>top offers</em>
+              </h2>
+              <p>
+                Start with popular offers, then open a store to compare every
+                available code and deal.
+              </p>
+            </header>
+            <div className="coupon-grid">
+              {topOffers.map((coupon) => (
+                <CouponCard key={coupon.id} coupon={coupon} demo={demo} />
+              ))}
+            </div>
+            <Link className="blog-outline-link" href="/deals">
+              Explore all deals <ArrowRight size={16} />
+            </Link>
+          </div>
+        </section>
+      )}
 
       {posts[0] && (
         <section className="blog-featured content-wrap">
