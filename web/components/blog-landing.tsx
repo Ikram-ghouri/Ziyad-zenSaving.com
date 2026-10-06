@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { getCatalog } from '@/lib/data';
 import type { Post } from '@/lib/types';
 
@@ -10,7 +10,7 @@ const channels=[
 ];
 
 function StoryCard({post}:{post:Post}){
-  return <Link className="blog-story-card" href={`/blog/${post.slug}`}><span>{post.category}</span><h3>{post.title}</h3><p>{post.excerpt}</p><small>Read more <ArrowRight size={15}/></small></Link>;
+  return <Link className="blog-story-card" href={`/blog/${post.slug}`}><span>{post.category}</span><h3>{post.title}</h3><p>{post.excerpt}</p><div className="blog-card-meta"><time>{new Date(post.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</time><i><Clock size={13}/> 5 min read</i></div><small>Read article <ArrowRight size={15}/></small></Link>;
 }
 
 export default async function BlogLanding(){
@@ -36,6 +36,14 @@ export default async function BlogLanding(){
       <div className="blog-store-row">{stores.slice(0,8).map(store=><Link href={`/store/${store.slug}`} key={store.id}><b>{store.name.slice(0,2).toUpperCase()}</b><span>{store.name}</span></Link>)}</div>
       <Link className="blog-outline-link" href="/stores">View all stores <ArrowRight size={16}/></Link>
     </section>
+
+    {posts[0]&&<section className="blog-featured content-wrap">
+      <header className="blog-section-title"><span>Editor&apos;s selection</span><h2>Start with our <em>featured reads</em></h2><p>In-depth advice for making confident choices, avoiding common checkout mistakes and getting more from every budget.</p></header>
+      <div className="blog-editorial-grid">
+        <Link className="blog-lead-story" href={`/blog/${posts[0].slug}`}><span>{posts[0].category}</span><div><small>Featured guide · 7 min read</small><h2>{posts[0].title}</h2><p>{posts[0].excerpt} We break the process into practical steps you can use before your next purchase.</p><b>Continue reading <ArrowRight size={17}/></b></div></Link>
+        <div className="blog-side-stories">{posts.slice(1,3).map(post=><StoryCard post={post} key={`featured-${post.id}`}/>)}</div>
+      </div>
+    </section>}
 
     <section className="blog-hubs">
       <div className="content-wrap">
