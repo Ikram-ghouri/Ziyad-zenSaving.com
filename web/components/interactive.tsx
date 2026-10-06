@@ -84,7 +84,6 @@ export function Header({ name }: { name: string }) {
     ["Top deals", "/deals"],
     ["Special discounts", "/discounts"],
     ["Categories", "/categories"],
-    ["Guides & reviews", "/blog"],
     ["Saved offers", "/saved"],
   ];
   const isActive = (href: string) =>
