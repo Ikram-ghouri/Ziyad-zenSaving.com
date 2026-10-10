@@ -1,1 +1,4 @@
-'use client';import { useEffect,useState } from 'react';import { CouponList } from '@/components/interactive';import type { Coupon } from '@/lib/types';export default function Saved(){const [coupons,setCoupons]=useState<Coupon[]>([]);useEffect(()=>{fetch('/api/catalog').then(r=>r.json()).then(d=>setCoupons(d.coupons||[]));},[]);return <><section className="page-hero"><span className="eyebrow">Your shortlist</span><h1>Saved offers</h1><p>Offers you bookmark stay on this device, ready when you need them.</p></section><div className="content-wrap"><CouponList coupons={coupons} demo savedOnly/></div></>}
+import { redirect } from "next/navigation";
+export default function LegacySavedOffers() {
+  redirect("/");
+}

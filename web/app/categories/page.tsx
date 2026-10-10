@@ -1,1 +1,43 @@
-import Link from 'next/link'; import { ArrowRight } from 'lucide-react'; import { getCatalog } from '@/lib/data'; export default async function Categories() { const { categories } = await getCatalog(); return <><section className="page-hero"><span className="eyebrow">Browse by interest</span><h1>Coupon categories</h1><p>Start with what you are shopping for and discover stores and current offers.</p></section><div className="content-wrap audience-grid">{categories.map(c => <Link key={c} href={`/coupon-category/${encodeURIComponent(c.toLowerCase().replaceAll(' ', '-'))}`}><span>✦</span><strong>{c}</strong><small>offers</small><ArrowRight size={16} /></Link>)}</div></> }
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { getEditorialCatalog } from "@/lib/data";
+import { pageMetadata, seoKeywords } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  title: "Article Categories",
+  description:
+    "Browse Zen Saving articles by topic, including buying guides, reviews and practical everyday ideas.",
+  path: "/categories",
+  keywords: seoKeywords.blog,
+});
+
+export default async function Categories() {
+  const { posts, categories } = await getEditorialCatalog();
+  const topics = categories.length
+    ? categories
+    : [...new Set(posts.map((post) => post.category))];
+  return (
+    <>
+      <section className="page-hero">
+        <span className="eyebrow">Explore by topic</span>
+        <h1>Ideas for every decision</h1>
+        <p>
+          Browse practical guides, reviews and thoughtful advice organized
+          around the subjects you care about.
+        </p>
+      </section>
+      <div className="content-wrap blog-hub-grid">
+        {topics.map((category, index) => (
+          <Link
+            key={category}
+            href={`/search?q=${encodeURIComponent(category)}`}
+          >
+            <b>{String(index + 1).padStart(2, "0")}</b>
+            <span>{category}</span>
+            <ArrowRight />
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}

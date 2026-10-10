@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
-import { CouponCard } from "@/components/interactive";
-import { demo, getCatalog } from "@/lib/data";
+import { getEditorialCatalog } from "@/lib/data";
 import type { Post } from "@/lib/types";
 
 const channels = [
@@ -16,7 +15,7 @@ const channels = [
     intro: "Useful research and practical advice for confident choices.",
   },
   {
-    title: "Subscription box savings",
+    title: "Subscription box guide",
     category: "Subscription boxes",
     intro: "Know what is worth subscribing to before you commit.",
   },
@@ -48,32 +47,23 @@ function StoryCard({ post }: { post: Post }) {
 }
 
 export default async function BlogLanding() {
-  const { posts, stores, coupons } = await getCatalog();
+  const { posts } = await getEditorialCatalog();
   const categories = [...new Set(posts.map((post) => post.category))];
-  const topOffers = [...coupons]
-    .filter((coupon) => !coupon.is_expired)
-    .sort((a, b) => b.percent_success - a.percent_success || b.used - a.used)
-    .slice(0, 3);
 
   return (
     <>
-      {demo && (
-        <div className="demo-banner">
-          Preview mode · Offers shown here are sample content
-        </div>
-      )}
       <section className="blog-showcase">
         <div className="blog-showcase-inner">
-          <span>Smarter savings start here</span>
+          <span>Thoughtful ideas start here</span>
           <h1>
             Good finds. <em>Better choices.</em>
           </h1>
           <p>
-            Discover current offers, trusted stores and practical guidance for
-            spending thoughtfully and saving on the things you already need.
+            Read practical guides, thoughtful reviews and useful ideas for
+            making confident choices in everyday life.
           </p>
-          <Link href="#top-offers">
-            Explore today&apos;s offers <ArrowRight size={18} />
+          <Link href="#stories">
+            Explore latest stories <ArrowRight size={18} />
           </Link>
           <div className="blog-dots" aria-hidden="true">
             <i />
@@ -81,51 +71,6 @@ export default async function BlogLanding() {
           </div>
         </div>
       </section>
-
-      <section className="blog-store-strip content-wrap">
-        <header className="blog-section-title">
-          <span>Popular right now</span>
-          <h2>
-            Explore our <em>featured stores</em>
-          </h2>
-        </header>
-        <div className="blog-store-row">
-          {stores.slice(0, 8).map((store) => (
-            <Link href={`/store/${store.slug}`} key={store.id}>
-              <b>{store.name.slice(0, 2).toUpperCase()}</b>
-              <span>{store.name}</span>
-            </Link>
-          ))}
-        </div>
-        <Link className="blog-outline-link" href="/stores">
-          View all stores <ArrowRight size={16} />
-        </Link>
-      </section>
-
-      {topOffers.length > 0 && (
-        <section className="blog-deals" id="top-offers">
-          <div className="content-wrap">
-            <header className="blog-section-title">
-              <span>Handpicked savings</span>
-              <h2>
-                Today&apos;s <em>top offers</em>
-              </h2>
-              <p>
-                Start with popular offers, then open a store to compare every
-                available code and deal.
-              </p>
-            </header>
-            <div className="coupon-grid">
-              {topOffers.map((coupon) => (
-                <CouponCard key={coupon.id} coupon={coupon} demo={demo} />
-              ))}
-            </div>
-            <Link className="blog-outline-link" href="/deals">
-              Explore all deals <ArrowRight size={16} />
-            </Link>
-          </div>
-        </section>
-      )}
 
       {posts[0] && (
         <section className="blog-featured content-wrap">
@@ -135,8 +80,8 @@ export default async function BlogLanding() {
               Start with our <em>featured reads</em>
             </h2>
             <p>
-              In-depth advice for making confident choices, avoiding common
-              checkout mistakes and getting more from every budget.
+              In-depth advice for making confident choices, understanding the
+              details and finding ideas that work in everyday life.
             </p>
           </header>
           <div className="blog-editorial-grid">
@@ -147,7 +92,7 @@ export default async function BlogLanding() {
                 <h2>{posts[0].title}</h2>
                 <p>
                   {posts[0].excerpt} We break the process into practical steps
-                  you can use before your next purchase.
+                  you can apply to your next decision.
                 </p>
                 <b>
                   Continue reading <ArrowRight size={17} />
@@ -174,7 +119,7 @@ export default async function BlogLanding() {
           <div className="blog-hub-grid">
             {(categories.length
               ? categories
-              : ["Buying guides", "Reviews", "Saving tips"]
+              : ["Buying guides", "Reviews", "Practical ideas"]
             )
               .slice(0, 3)
               .map((category, index) => (

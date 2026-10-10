@@ -1,1 +1,4 @@
-export { default } from '@/app/coupon-category/[slug]/page';
+import { redirect } from "next/navigation";
+export default function LegacyCouponTag() {
+  redirect("/categories");
+}

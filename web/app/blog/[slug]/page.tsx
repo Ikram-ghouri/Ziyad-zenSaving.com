@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   ArrowRight,
   CalendarDays,
@@ -7,7 +8,30 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { notFound } from "next/navigation";
-import { getCatalog } from "@/lib/data";
+import { getEditorialCatalog, siteName, siteUrl } from "@/lib/data";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const { posts } = await getEditorialCatalog();
+  const post = posts.find((item) => item.slug === slug);
+  if (!post) return { title: "Article" };
+  return {
+    title: post.title,
+    description: post.excerpt,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `/blog/${post.slug}`,
+      type: "article",
+      publishedTime: post.date,
+    },
+  };
+}
 
 export default async function Post({
   params,
@@ -15,13 +39,29 @@ export default async function Post({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const { posts } = await getCatalog();
+  const { posts } = await getEditorialCatalog();
   const post = posts.find((p) => p.slug === slug);
   if (!post) notFound();
   const related = posts.filter((item) => item.slug !== post.slug).slice(0, 3);
+  const articleData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    author: { "@type": "Organization", name: `${siteName} editors` },
+    publisher: { "@type": "Organization", name: siteName },
+    mainEntityOfPage: `${siteUrl}/blog/${post.slug}`,
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleData).replace(/</g, "\\u003c"),
+        }}
+      />
       <section className="page-hero article-hero">
         <span className="eyebrow">{post.category}</span>
         <h1>{post.title}</h1>
@@ -44,10 +84,10 @@ export default async function Post({
       <div className="article-shell content-wrap">
         <aside className="article-toc">
           <strong>In this guide</strong>
-          <a href="#plan">Plan before browsing</a>
-          <a href="#compare">Compare the real total</a>
-          <a href="#check">Check every condition</a>
-          <a href="#decide">Make the final decision</a>
+          <a href="#plan">Start with the question</a>
+          <a href="#compare">Compare the evidence</a>
+          <a href="#check">Check the details</a>
+          <a href="#decide">Choose with confidence</a>
         </aside>
         <article className="prose editorial-prose">
           <p className="article-intro">{post.content}</p>
@@ -56,74 +96,73 @@ export default async function Post({
             <div>
               <strong>The useful rule</strong>
               <p>
-                A saving only counts when it reduces the cost of something you
-                already intended to buy.
+                The best choice is the one that fits your needs after the noise
+                and urgency have been removed.
               </p>
             </div>
           </div>
-          <h2 id="plan">Plan before you start browsing</h2>
+          <h2 id="plan">Start with the question you need to answer</h2>
           <p>
-            Begin with the outcome you need and a comfortable spending limit. A
-            short list keeps attractive promotions from turning into extra
-            purchases. Note the size, features or delivery date that matter,
-            then treat everything else as optional.
+            Begin with the outcome you need. Write down the few qualities that
+            would make an option useful, comfortable or worthwhile in your
+            everyday life. Treat everything else as optional until it proves
+            relevant.
           </p>
           <p>
-            When a retailer advertises a large percentage reduction, compare the
-            sale price with similar products elsewhere. The original price alone
-            does not tell you whether the offer is competitive.
+            Clear criteria make research easier. They help you separate a
+            meaningful improvement from a feature that only sounds impressive in
+            a headline.
           </p>
-          <h2 id="compare">Compare the real total</h2>
+          <h2 id="compare">Compare the evidence, not just the claims</h2>
           <p>
-            Look beyond the number shown on the product page. Shipping, taxes,
-            minimum order thresholds and membership fees can change which offer
-            is best. Add every required cost before comparing two stores or two
-            coupon codes.
+            Look for details that can be checked: materials, dimensions,
+            maintenance, long-term cost, independent testing and how an option
+            performs in normal use. Give more weight to evidence that matches
+            your situation.
           </p>
           <ul className="article-checklist">
             <li>
               <CheckCircle2 />
-              Check delivery charges and arrival dates.
+              Compare the features that affect your actual use.
             </li>
             <li>
               <CheckCircle2 />
-              Compare percentage discounts with fixed-value codes.
+              Separate essential qualities from convenient extras.
             </li>
             <li>
               <CheckCircle2 />
-              Include subscription or membership requirements.
+              Include setup, upkeep and recurring requirements.
             </li>
             <li>
               <CheckCircle2 />
-              Confirm the return window and any return shipping fee.
+              Check warranties, support and return conditions.
             </li>
           </ul>
-          <h2 id="check">Check every offer condition</h2>
+          <h2 id="check">Check the details before you decide</h2>
           <p>
-            Coupon terms often exclude selected brands, new releases, sale items
-            or particular regions. Read the current retailer terms and enter the
-            code before committing to payment. If the total does not change as
-            expected, remove the code and reassess the order.
+            Specifications, policies and availability can change. Confirm the
+            current details with the original source, especially when size,
+            compatibility, safety or ongoing costs affect the decision.
           </p>
           <blockquote>
-            Pause at checkout and ask: would I still buy this at today&apos;s
-            final price without the countdown or promotional banner?
+            Pause and ask: does this option solve the original problem, or did
+            the presentation change what I thought I needed?
           </blockquote>
-          <h2 id="decide">Make the final decision calmly</h2>
+          <h2 id="decide">Choose with confidence</h2>
           <p>
-            Give yourself a brief pause for non-essential purchases. Recheck the
-            product, quantity, address and final total. A clear decision is more
-            valuable than rushing to catch an offer that does not fit your
-            original plan.
+            Give yourself a brief pause before committing. Revisit your original
+            criteria and choose the option that meets them with the fewest
+            compromises. A calm decision is more useful than one driven by
+            novelty or urgency.
           </p>
           <div className="article-summary">
-            <strong>Before you buy</strong>
+            <strong>Before you choose</strong>
             <ol>
-              <li>Confirm the purchase was already planned.</li>
-              <li>Compare the complete delivered price.</li>
-              <li>Read exclusions and expiry information.</li>
-              <li>Check returns and recurring charges.</li>
-              <li>Save the order confirmation and terms.</li>
+              <li>Restate the result you need.</li>
+              <li>Compare the qualities that matter most.</li>
+              <li>Verify important claims with primary sources.</li>
+              <li>Consider maintenance and long-term effort.</li>
+              <li>Take a pause, then make the decision.</li>
             </ol>
           </div>
         </article>
@@ -135,9 +174,9 @@ export default async function Post({
               <div>
                 <span>Continue reading</span>
                 <h2>More useful guides</h2>
-                <p>Practical ideas for your next shopping decision.</p>
+                <p>Practical ideas for your next decision.</p>
               </div>
-              <Link href="/blog">
+              <Link href="/#stories">
                 Browse all articles <ArrowRight size={16} />
               </Link>
             </header>
