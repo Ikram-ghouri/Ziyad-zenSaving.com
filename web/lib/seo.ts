@@ -2,40 +2,19 @@ import type { Metadata } from "next";
 
 export const seoKeywords = {
   home: [
-    "coupon codes",
-    "promo codes",
-    "online deals",
-    "discount codes",
-    "verified coupons",
-    "free shipping deals",
-  ],
-  stores: [
-    "coupon stores",
-    "stores with promo codes",
-    "brand coupon codes",
-    "all coupon stores",
-  ],
-  deals: [
-    "best online deals",
-    "top coupon codes",
-    "today deals",
-    "verified promo codes",
-    "free shipping coupons",
-  ],
-  discounts: [
-    "special discounts",
-    "student discounts",
-    "teacher discounts",
-    "military discounts",
-    "senior discounts",
-    "healthcare discounts",
+    "practical guides",
+    "honest reviews",
+    "buying guides",
+    "everyday ideas",
+    "thoughtful living",
+    "smart choices",
   ],
   blog: [
-    "money saving tips",
+    "practical life tips",
     "shopping guides",
     "product reviews",
-    "how to save money online",
-    "coupon tips",
+    "thoughtful shopping advice",
+    "everyday decision guides",
   ],
 };
 

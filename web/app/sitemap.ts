@@ -1,14 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getCatalog, siteUrl } from "@/lib/data";
-import { audiences } from "@/lib/types";
+import { getEditorialCatalog, siteUrl } from "@/lib/data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const data = await getCatalog();
+  const data = await getEditorialCatalog();
   const paths = [
     "",
-    "stores",
-    "deals",
-    "discounts",
     "categories",
     "about",
     "contact",
@@ -17,15 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "terms",
   ];
   const urls = paths.map((path) => `${siteUrl}/${path}`);
-  urls.push(
-    ...data.stores.map((store) => `${siteUrl}/store/${store.slug}`),
-    ...data.posts.map((post) => `${siteUrl}/blog/${post.slug}`),
-    ...data.categories.map(
-      (category) =>
-        `${siteUrl}/coupon-category/${encodeURIComponent(category.toLowerCase().replaceAll(" ", "-"))}`,
-    ),
-    ...audiences.map((audience) => `${siteUrl}/discounts/${audience}`),
-  );
+  urls.push(...data.posts.map((post) => `${siteUrl}/blog/${post.slug}`));
   return urls.map((url) => ({
     url,
     lastModified: new Date(),

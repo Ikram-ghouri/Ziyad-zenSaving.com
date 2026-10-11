@@ -10,17 +10,17 @@ import "./enhancements.css";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} — Coupons, Promo Codes & Deals`,
+    default: `${siteName} — Guides, Reviews & Better Ideas`,
     template: `%s | ${siteName}`,
   },
   description:
-    "Find coupon codes, trusted offers and practical shopping guides for the stores you love.",
+    "Read practical guides, thoughtful reviews and useful ideas for making confident everyday choices.",
   keywords: seoKeywords.home,
   alternates: { canonical: "/" },
   openGraph: {
-    title: `${siteName} — Coupons, Promo Codes & Deals`,
+    title: `${siteName} — Guides, Reviews & Better Ideas`,
     description:
-      "Find coupon codes, trusted offers and practical shopping guides for the stores you love.",
+      "Read practical guides, thoughtful reviews and useful ideas for making confident everyday choices.",
     url: "/",
     siteName,
     type: "website",
@@ -85,29 +85,29 @@ function Footer() {
             <span className="brand-dot">.</span>
           </Link>
           <p>
-            Helping everyday shoppers find a little more room in their budget.
+            Practical ideas for thoughtful choices, useful discoveries and
+            everyday life.
           </p>
           <p className="fine">
-            We may earn a commission when you buy through links on our site.
+            Independent guides and reviews, written to be clear and useful.
           </p>
         </div>
         <div>
-          <strong>Save</strong>
-          <Link href="/stores">All stores</Link>
-          <Link href="/deals">Top deals</Link>
-          <Link href="/discounts">Special discounts</Link>
-          <Link href="/submit-coupon">Submit a coupon</Link>
+          <strong>Read</strong>
+          <Link href="/#stories">Latest stories</Link>
+          <Link href="/search?q=Buying%20guides">Buying guides</Link>
+          <Link href="/search?q=Reviews">Reviews</Link>
+          <Link href="/categories">All categories</Link>
         </div>
         <div>
           <strong>Explore</strong>
-          <Link href="/#stories">Latest guides</Link>
-          <Link href="/categories">Categories</Link>
-          <Link href="/saved">Saved offers</Link>
+          <Link href="/">Home</Link>
+          <Link href="/search">Article archive</Link>
           <Link href="/about">About us</Link>
+          <Link href="/contact">Contact</Link>
         </div>
         <div>
           <strong>Legal</strong>
-          <Link href="/contact">Contact</Link>
           <Link href="/privacy-policy">Privacy policy</Link>
           <Link href="/affiliate-disclosure">Affiliate disclosure</Link>
           <Link href="/terms">Terms</Link>
@@ -115,7 +115,7 @@ function Footer() {
       </div>
       <div className="footer-bottom">
         © {new Date().getFullYear()} {siteName}. All rights reserved.{" "}
-        <span>Shop thoughtfully. Save happily.</span>
+        <span>Read thoughtfully. Choose confidently.</span>
       </div>
     </footer>
   );

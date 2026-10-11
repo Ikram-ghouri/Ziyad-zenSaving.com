@@ -1,1 +1,4 @@
-import { LegalPage } from '@/components/legal-page';export default function Page(){return <LegalPage kind="affiliate"/>}
+import { LegalPage } from "@/components/legal-page";
+export default function Page() {
+  return <LegalPage kind="affiliate" />;
+}

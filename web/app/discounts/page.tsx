@@ -1,11 +1,4 @@
-import Link from 'next/link';
-import { Apple, ArrowRight, CakeSlice, CreditCard, Gift, GraduationCap, HeartHandshake, Medal, Shield, Stethoscope } from 'lucide-react';
-import { audiences,label } from '@/lib/types';
-import { pageMetadata,seoKeywords } from '@/lib/seo';
-
-export const metadata=pageMetadata({title:'Special Discounts for Students, Teachers & More',description:'Find student, teacher, military, senior, healthcare and first responder discounts from popular stores.',path:'/discounts',keywords:seoKeywords.discounts});
-
-const icons=[GraduationCap,Apple,Medal,HeartHandshake,Stethoscope,HeartHandshake,Shield,CakeSlice,CreditCard,Gift];
-const descriptions=['College and university offers','Savings for educators and staff','Offers honoring military service','Helpful savings for older adults','Offers for nurses and care teams','Savings across health and wellness','Offers for first responders','Birthday treats and member rewards','Cardholder and banking offers','Gift card promotions and bonuses'];
-
-export default function Discounts(){return <><section className="page-hero discount-hero"><span className="eyebrow">Offers for every chapter</span><h1>Special discounts,<br/>made more personal.</h1><p>Explore savings designed around your work, studies, service and life. Always check eligibility with the retailer.</p><div className="hero-pills"><span>No membership fee</span><span>Retailer terms shown</span><span>Updated regularly</span></div></section><div className="content-wrap"><div className="section-head"><div><span className="eyebrow">Find your discount</span><h2>Ways to save for who you are</h2></div></div><div className="discount-grid">{audiences.map((a,i)=>{const Icon=icons[i];return <Link href={`/discounts/${a}`} key={a}><div className="discount-icon"><Icon size={25}/></div><div><strong>{label(a)} discounts</strong><p>{descriptions[i]}</p><small>Explore offers <ArrowRight size={14}/></small></div></Link>})}</div><section className="discount-how"><div><span className="eyebrow">Simple and clear</span><h2>How special discounts work</h2><p>Some offers need a quick eligibility check with the retailer. We help you find them and understand what to expect before you shop.</p></div><ol><li><span>1</span><strong>Choose your group</strong><p>Open the discount hub that applies to you.</p></li><li><span>2</span><strong>Check eligibility</strong><p>Review the retailer’s current verification terms.</p></li><li><span>3</span><strong>Shop and save</strong><p>Follow the offer and confirm savings at checkout.</p></li></ol></section></div></>}
+import { redirect } from "next/navigation";
+export default function LegacyDiscounts() {
+  redirect("/");
+}

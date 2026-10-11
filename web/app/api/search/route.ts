@@ -1,1 +1,18 @@
-import { NextRequest,NextResponse } from 'next/server';import { getCatalog } from '@/lib/data';export async function GET(req:NextRequest){const q=(req.nextUrl.searchParams.get('q')||'').toLowerCase().slice(0,100);const data=await getCatalog();return NextResponse.json({stores:data.stores.filter(s=>s.name.toLowerCase().includes(q)).slice(0,8),coupons:data.coupons.filter(c=>`${c.title} ${c.store.name}`.toLowerCase().includes(q)).slice(0,8)})}
+import { NextRequest, NextResponse } from "next/server";
+import { getEditorialCatalog } from "@/lib/data";
+
+export async function GET(request: NextRequest) {
+  const query = (request.nextUrl.searchParams.get("q") || "")
+    .toLowerCase()
+    .slice(0, 100);
+  const { posts } = await getEditorialCatalog();
+  return NextResponse.json({
+    posts: posts
+      .filter((post) =>
+        `${post.title} ${post.excerpt} ${post.category}`
+          .toLowerCase()
+          .includes(query),
+      )
+      .slice(0, 8),
+  });
+}

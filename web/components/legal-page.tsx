@@ -6,15 +6,15 @@ const copy = {
     slug: "about",
     title: "About Zen Saving",
     intro:
-      "We make finding useful savings feel calmer, clearer and more trustworthy.",
+      "We publish clear, practical ideas that help readers make more confident everyday choices.",
     sections: [
       [
         "Our purpose",
-        "Zen Saving brings coupon codes, online deals and practical shopping advice into one easy place.",
+        "Zen Saving brings thoughtful guides, reviews and practical advice into one easy place.",
       ],
       [
         "How we work",
-        "We organize offers from stores and present the terms shoppers need to make an informed choice.",
+        "We organize useful information, explain important details and keep every article easy to follow.",
       ],
     ],
   },
@@ -29,8 +29,8 @@ const copy = {
         "Use the contact method managed in WordPress to reach the Zen Saving team.",
       ],
       [
-        "Coupon corrections",
-        "Include the store, offer title and page URL when reporting an expired or incorrect coupon.",
+        "Article corrections",
+        "Include the article title and page URL when reporting information that needs to be reviewed.",
       ],
     ],
   },
@@ -38,15 +38,15 @@ const copy = {
     slug: "privacy-policy",
     title: "Privacy policy",
     intro:
-      "Learn how Zen Saving handles visitor information, cookies and saved offers.",
+      "Learn how Zen Saving handles visitor information, cookies and website analytics.",
     sections: [
       [
         "Information collected",
-        "The live policy should explain analytics, form submissions, cookies and local saved offers.",
+        "The live policy should explain analytics, contact form submissions and cookies.",
       ],
       [
         "Your choices",
-        "Saved offers use browser storage. Visitors should be able to manage consent and contact the site about privacy requests.",
+        "Visitors should be able to manage consent and contact the site about privacy requests.",
       ],
     ],
   },
@@ -58,7 +58,7 @@ const copy = {
     sections: [
       [
         "Editorial independence",
-        "Compensation should not determine how offers, reviews or guides are described.",
+        "Compensation should not determine how reviews, recommendations or guides are described.",
       ],
       [
         "Price to shoppers",
@@ -72,8 +72,8 @@ const copy = {
     intro: "Read the terms that apply when using Zen Saving.",
     sections: [
       [
-        "Offer accuracy",
-        "Coupon availability, prices and terms can change. Visitors should verify the final price and conditions with the retailer.",
+        "Information accuracy",
+        "Articles are provided for general information. Details can change, so readers should verify important information with the original source.",
       ],
       [
         "Use of the site",

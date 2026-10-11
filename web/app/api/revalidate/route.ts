@@ -1,1 +1,12 @@
-import { revalidateTag } from 'next/cache';import { NextRequest,NextResponse } from 'next/server';export async function POST(req:NextRequest){const secret=req.headers.get('x-revalidate-secret');if(!process.env.WP_REVALIDATE_SECRET||secret!==process.env.WP_REVALIDATE_SECRET)return NextResponse.json({message:'Unauthorized'},{status:401});revalidateTag('wordpress','max');return NextResponse.json({revalidated:true,now:Date.now()})}
+import { revalidateTag } from "next/cache";
+import { NextRequest, NextResponse } from "next/server";
+export async function POST(req: NextRequest) {
+  const secret = req.headers.get("x-revalidate-secret");
+  if (
+    !process.env.WP_REVALIDATE_SECRET ||
+    secret !== process.env.WP_REVALIDATE_SECRET
+  )
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  revalidateTag("wordpress", "max");
+  return NextResponse.json({ revalidated: true, now: Date.now() });
+}

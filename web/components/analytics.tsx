@@ -36,8 +36,7 @@ export function Analytics() {
       {consent === null && (
         <div className="consent" role="dialog" aria-label="Cookie choices">
           <p>
-            We use optional analytics to understand which savings pages are
-            useful.
+            We use optional analytics to understand which articles are useful.
           </p>
           <div>
             <button onClick={() => choose("declined")}>Decline</button>

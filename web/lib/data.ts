@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { mockCatalog } from "@/mocks/catalog";
-import type { Catalog } from "./types";
+import type { Catalog, EditorialCatalog } from "./types";
 export const demo = process.env.USE_MOCK_DATA !== "false";
 export const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Zen Saving";
 export const siteUrl =
@@ -47,6 +47,42 @@ export const getCatalog = cache(async (): Promise<Catalog> => {
     return mockCatalog;
   }
 });
+export const getEditorialCatalog = cache(
+  async (): Promise<EditorialCatalog> => {
+    if (demo)
+      return {
+        posts: mockCatalog.posts,
+        categories: [
+          ...new Set(mockCatalog.posts.map((post) => post.category)),
+        ],
+      };
+    try {
+      const [posts, categories] = await Promise.all([
+        wp<Catalog["posts"] | { items: Catalog["posts"] }>(
+          "posts?per_page=100",
+        ),
+        wp<(string | { name: string })[]>("categories"),
+      ]);
+      return {
+        posts: Array.isArray(posts) ? posts : posts.items,
+        categories: categories.map((category) =>
+          typeof category === "string" ? category : category.name,
+        ),
+      };
+    } catch (error) {
+      console.warn(
+        "WordPress editorial content unavailable; using bundled fallback content.",
+        error instanceof Error ? error.message : error,
+      );
+      return {
+        posts: mockCatalog.posts,
+        categories: [
+          ...new Set(mockCatalog.posts.map((post) => post.category)),
+        ],
+      };
+    }
+  },
+);
 export const getPage = cache(
   async (
     slug: string,
