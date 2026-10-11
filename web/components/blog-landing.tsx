@@ -1,54 +1,26 @@
 import Link from "next/link";
-import { ArrowRight, Clock } from "lucide-react";
-import { getEditorialCatalog } from "@/lib/data";
-import type { Post } from "@/lib/types";
+import { ArrowRight } from "lucide-react";
+import { getPostCategories, getPosts } from "@/lib/data";
+import { PostCard } from "@/components/post-card";
 
-const channels = [
-  {
-    title: "Latest product reviews",
-    category: "Reviews",
-    intro: "Clear opinions that help you compare before you buy.",
-  },
-  {
-    title: "Expert buying guides",
-    category: "Buying guides",
-    intro: "Useful research and practical advice for confident choices.",
-  },
-  {
-    title: "Subscription box guide",
-    category: "Subscription boxes",
-    intro: "Know what is worth subscribing to before you commit.",
-  },
-];
-
-function StoryCard({ post }: { post: Post }) {
-  return (
-    <Link className="blog-story-card" href={`/blog/${post.slug}`}>
-      <span>{post.category}</span>
-      <h3>{post.title}</h3>
-      <p>{post.excerpt}</p>
-      <div className="blog-card-meta">
-        <time>
-          {new Date(post.date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </time>
-        <i>
-          <Clock size={13} /> 5 min read
-        </i>
-      </div>
-      <small>
-        Read article <ArrowRight size={15} />
-      </small>
-    </Link>
-  );
-}
+const intros: Record<string, string> = {
+  reviews: "Clear opinions that help you compare before you buy.",
+  "buying-guides": "Useful research and practical advice for confident choices.",
+  "subscription-boxes": "Know what is worth subscribing to before you commit.",
+};
 
 export default async function BlogLanding() {
-  const { posts } = await getEditorialCatalog();
-  const categories = [...new Set(posts.map((post) => post.category))];
+  const [latest, categories] = await Promise.all([
+    getPosts({ perPage: 9 }),
+    getPostCategories(),
+  ]);
+  const posts = latest.items;
+  const channels = categories.filter((c) => c.count > 0).slice(0, 3);
+  const channelPosts = await Promise.all(
+    channels.map((category) =>
+      getPosts({ category: category.slug, perPage: 3 }),
+    ),
+  );
 
   return (
     <>
@@ -79,21 +51,16 @@ export default async function BlogLanding() {
             <h2>
               Start with our <em>featured reads</em>
             </h2>
-            <p>
-              In-depth advice for making confident choices, understanding the
-              details and finding ideas that work in everyday life.
-            </p>
           </header>
           <div className="blog-editorial-grid">
             <Link className="blog-lead-story" href={`/blog/${posts[0].slug}`}>
               <span>{posts[0].category}</span>
               <div>
-                <small>Featured guide · 7 min read</small>
+                <small>
+                  Featured · {posts[0].reading_time_minutes} min read
+                </small>
                 <h2>{posts[0].title}</h2>
-                <p>
-                  {posts[0].excerpt} We break the process into practical steps
-                  you can apply to your next decision.
-                </p>
+                <p>{posts[0].excerpt}</p>
                 <b>
                   Continue reading <ArrowRight size={17} />
                 </b>
@@ -101,73 +68,80 @@ export default async function BlogLanding() {
             </Link>
             <div className="blog-side-stories">
               {posts.slice(1, 3).map((post) => (
-                <StoryCard post={post} key={`featured-${post.id}`} />
+                <PostCard post={post} key={`featured-${post.id}`} />
               ))}
             </div>
           </div>
         </section>
       )}
 
-      <section className="blog-hubs">
-        <div className="content-wrap">
-          <header className="blog-section-title light">
-            <span>Featured hubs</span>
-            <h2>
-              Explore our <em>top categories</em>
-            </h2>
-          </header>
-          <div className="blog-hub-grid">
-            {(categories.length
-              ? categories
-              : ["Buying guides", "Reviews", "Practical ideas"]
-            )
-              .slice(0, 3)
-              .map((category, index) => (
-                <Link
-                  href={`/search?q=${encodeURIComponent(category)}`}
-                  key={category}
-                >
+      {categories.length > 0 && (
+        <section className="blog-hubs">
+          <div className="content-wrap">
+            <header className="blog-section-title light">
+              <span>Featured hubs</span>
+              <h2>
+                Explore our <em>top categories</em>
+              </h2>
+            </header>
+            <div className="blog-hub-grid">
+              {categories.slice(0, 3).map((category, index) => (
+                <Link href={`/category/${category.slug}`} key={category.id}>
                   <b>0{index + 1}</b>
-                  <span>{category}</span>
+                  <span>{category.name}</span>
                   <ArrowRight />
                 </Link>
               ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="content-wrap blog-channels" id="stories">
-        {channels.map((channel) => {
-          const matching = posts.filter(
-            (post) =>
-              post.category.toLowerCase() === channel.category.toLowerCase(),
-          );
-          const stories = matching.length ? matching : posts;
-          return (
-            <section className="blog-channel" key={channel.category}>
-              <div className="blog-channel-head">
-                <div>
-                  <span>{channel.category}</span>
-                  <h2>{channel.title}</h2>
-                  <p>{channel.intro}</p>
-                </div>
-                <Link
-                  href={`/search?q=${encodeURIComponent(channel.category)}`}
-                >
-                  View all <ArrowRight size={16} />
-                </Link>
+        {channels.length === 0 && posts.length > 0 && (
+          <section className="blog-channel">
+            <div className="blog-channel-head">
+              <div>
+                <span>Latest</span>
+                <h2>Latest stories</h2>
               </div>
-              <div className="blog-story-grid">
-                {stories.slice(0, 3).map((post) => (
-                  <StoryCard
-                    post={post}
-                    key={`${channel.category}-${post.id}`}
-                  />
-                ))}
+              <Link href="/blog">
+                View all <ArrowRight size={16} />
+              </Link>
+            </div>
+            <div className="blog-story-grid">
+              {posts.slice(0, 6).map((post) => (
+                <PostCard post={post} key={`latest-${post.id}`} />
+              ))}
+            </div>
+          </section>
+        )}
+        {channels.map((category, index) => (
+          <section className="blog-channel" key={category.id}>
+            <div className="blog-channel-head">
+              <div>
+                <span>{category.name}</span>
+                <h2>Latest {category.name.toLowerCase()}</h2>
+                <p>
+                  {category.description ||
+                    intros[category.slug] ||
+                    `Our newest articles about ${category.name.toLowerCase()}.`}
+                </p>
               </div>
-            </section>
-          );
-        })}
+              <Link href={`/category/${category.slug}`}>
+                View all <ArrowRight size={16} />
+              </Link>
+            </div>
+            <div className="blog-story-grid">
+              {channelPosts[index].items.map((post) => (
+                <PostCard post={post} key={`${category.slug}-${post.id}`} />
+              ))}
+            </div>
+          </section>
+        ))}
+        {posts.length === 0 && (
+          <div className="empty">No articles have been published yet.</div>
+        )}
       </section>
     </>
   );

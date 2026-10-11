@@ -1,4 +1,7 @@
-import { LegalPage } from "@/components/legal-page";
+import { StaticPage, staticPageMetadata } from "@/components/legal-page";
+
+export const generateMetadata = () => staticPageMetadata("affiliate-disclosure");
+
 export default function Page() {
-  return <LegalPage kind="affiliate" />;
+  return <StaticPage route="affiliate-disclosure" />;
 }

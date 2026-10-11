@@ -1,66 +1,42 @@
-import Link from "next/link";
-import { ArrowRight, Clock } from "lucide-react";
-import { getEditorialCatalog } from "@/lib/data";
+import type { Metadata } from "next";
+import { getPosts } from "@/lib/data";
+import { Pagination, PostGrid, parsePage } from "@/components/post-card";
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const query = ((await searchParams).q || "").trim();
-  const normalized = query.toLowerCase();
-  const { posts } = await getEditorialCatalog();
-  const results = normalized
-    ? posts.filter((post) =>
-        `${post.title} ${post.excerpt} ${post.category} ${post.content}`
-          .toLowerCase()
-          .includes(normalized),
-      )
-    : posts;
+type Props = { searchParams: Promise<{ q?: string; page?: string }> };
+
+export const metadata: Metadata = {
+  title: "Search",
+  // Search result pages should never be indexed.
+  robots: { index: false, follow: true },
+};
+
+export default async function SearchPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const query = (params.q || "").trim().slice(0, 100);
+  const page = parsePage(params.page);
+  const list = await getPosts({ search: query || undefined, page, perPage: 12 });
   return (
     <>
       <section className="page-hero">
         <span className="eyebrow">Search the journal</span>
         <h1>{query ? `Results for “${query}”` : "Explore every story"}</h1>
         <p>
-          {results.length} {results.length === 1 ? "article" : "articles"}{" "}
-          found.
+          {list.total} {list.total === 1 ? "article" : "articles"} found.
         </p>
       </section>
       <div className="content-wrap">
-        <div className="blog-story-grid">
-          {results.map((post) => (
-            <Link
-              className="blog-story-card"
-              href={`/blog/${post.slug}`}
-              key={post.id}
-            >
-              <span>{post.category}</span>
-              <h3>{post.title}</h3>
-              <p>{post.excerpt}</p>
-              <div className="blog-card-meta">
-                <time>
-                  {new Date(post.date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </time>
-                <i>
-                  <Clock size={13} /> 5 min read
-                </i>
-              </div>
-              <small>
-                Read article <ArrowRight size={15} />
-              </small>
-            </Link>
-          ))}
-        </div>
-        {results.length === 0 && (
+        <PostGrid posts={list.items} />
+        {list.items.length === 0 && (
           <div className="empty">
             No articles match that search. Try a broader topic.
           </div>
         )}
+        <Pagination
+          page={page}
+          totalPages={list.total_pages}
+          basePath="/search"
+          query={query ? { q: query } : {}}
+        />
       </div>
     </>
   );

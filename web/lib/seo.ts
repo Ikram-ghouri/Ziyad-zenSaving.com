@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { Seo } from "./types";
 
 export const seoKeywords = {
   home: [
@@ -28,7 +29,7 @@ export function pageMetadata({
   title: string;
   description: string;
   path: string;
-  keywords: string[];
+  keywords?: string[];
   noindex?: boolean;
 }): Metadata {
   return {
@@ -38,5 +39,32 @@ export function pageMetadata({
     alternates: { canonical: path },
     openGraph: { title, description, url: path, type: "website" },
     robots: noindex ? { index: false, follow: true } : undefined,
+  };
+}
+
+/** Metadata from the WordPress (Yoast) SEO payload. */
+export function wpMetadata(
+  seo: Seo,
+  path: string,
+  type: "article" | "website" = "website",
+  extra: { publishedTime?: string; modifiedTime?: string } = {},
+): Metadata {
+  const images = seo.og_image ? [{ url: seo.og_image }] : undefined;
+  return {
+    title: seo.title,
+    description: seo.description,
+    // Canonical always points at the new frontend URL. A Yoast canonical that
+    // still uses the old WordPress permalink would point Google at a redirect.
+    alternates: { canonical: path },
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      url: path,
+      type,
+      images,
+      ...(type === "article" ? extra : {}),
+    },
+    twitter: { card: images ? "summary_large_image" : "summary" },
+    robots: seo.noindex ? { index: false, follow: true } : undefined,
   };
 }

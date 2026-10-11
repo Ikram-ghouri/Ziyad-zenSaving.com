@@ -1,57 +1,80 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import {
-  ArrowRight,
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  Lightbulb,
-} from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, User } from "lucide-react";
 import { notFound } from "next/navigation";
-import { getEditorialCatalog, siteName, siteUrl } from "@/lib/data";
+import { getPost, getPosts, siteName, siteUrl } from "@/lib/data";
+import { sanitizeContent, withHeadingIds } from "@/lib/html";
+import { wpMetadata } from "@/lib/seo";
+import { formatDate } from "@/lib/types";
+import { PostGrid } from "@/components/post-card";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const { posts } = await getEditorialCatalog();
-  const post = posts.find((item) => item.slug === slug);
-  if (!post) return { title: "Article" };
-  return {
-    title: post.title,
-    description: post.excerpt,
-    alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      url: `/blog/${post.slug}`,
-      type: "article",
-      publishedTime: post.date,
-    },
-  };
+  const post = await getPost(slug);
+  if (!post) return { title: "Article not found" };
+  return wpMetadata(post.seo, `/blog/${post.slug}`, "article", {
+    publishedTime: post.date,
+    modifiedTime: post.modified,
+  });
 }
 
-export default async function Post({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function PostPage({ params }: Props) {
   const { slug } = await params;
-  const { posts } = await getEditorialCatalog();
-  const post = posts.find((p) => p.slug === slug);
+  const post = await getPost(slug);
   if (!post) notFound();
-  const related = posts.filter((item) => item.slug !== post.slug).slice(0, 3);
+
+  const primary = post.categories[0];
+  const related = (
+    await getPosts({
+      category: primary?.slug,
+      exclude: post.slug,
+      perPage: 4,
+    })
+  ).items
+    .filter((item) => item.slug !== post.slug)
+    .slice(0, 3);
+
+  const { html, toc } = withHeadingIds(sanitizeContent(post.content || ""));
+  const url = `${siteUrl}/blog/${post.slug}`;
   const articleData = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.excerpt,
+    description: post.seo.description || post.excerpt,
     datePublished: post.date,
-    author: { "@type": "Organization", name: `${siteName} editors` },
-    publisher: { "@type": "Organization", name: siteName },
-    mainEntityOfPage: `${siteUrl}/blog/${post.slug}`,
+    dateModified: post.modified,
+    image: post.featured_image?.url || undefined,
+    author: { "@type": "Person", name: post.author.name || `${siteName} editors` },
+    publisher: { "@type": "Organization", name: siteName, url: siteUrl },
+    mainEntityOfPage: url,
+    articleSection: primary?.name,
+    keywords: post.tags.map((tag) => tag.name).join(", ") || undefined,
+  };
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+      ...(primary
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: primary.name,
+              item: `${siteUrl}/category/${primary.slug}`,
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: primary ? 3 : 2,
+        name: post.title,
+        item: url,
+      },
+    ],
   };
 
   return (
@@ -59,143 +82,97 @@ export default async function Post({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleData).replace(/</g, "\\u003c"),
+          __html: JSON.stringify([articleData, breadcrumbs]).replace(
+            /</g,
+            "\\u003c",
+          ),
         }}
       />
       <section className="page-hero article-hero">
-        <span className="eyebrow">{post.category}</span>
+        {primary ? (
+          <Link className="eyebrow" href={`/category/${primary.slug}`}>
+            {primary.name}
+          </Link>
+        ) : (
+          <span className="eyebrow">{post.category}</span>
+        )}
         <h1>{post.title}</h1>
-        <p>{post.excerpt}</p>
+        {post.excerpt && <p>{post.excerpt}</p>}
         <div className="article-meta">
           <span>
             <CalendarDays size={15} />
-            {new Date(post.date).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}
+            <time dateTime={post.date}>{formatDate(post.date, "long")}</time>
           </span>
+          {post.modified && post.modified.slice(0, 10) !== post.date.slice(0, 10) && (
+            <span>
+              Updated{" "}
+              <time dateTime={post.modified}>
+                {formatDate(post.modified, "long")}
+              </time>
+            </span>
+          )}
           <span>
-            <Clock size={15} />6 minute read
+            <Clock size={15} />
+            {post.reading_time_minutes} minute read
           </span>
-          <span>By Zen Saving editors</span>
+          {post.author.name && (
+            <span>
+              <User size={15} />
+              By {post.author.name}
+            </span>
+          )}
         </div>
       </section>
+      {post.featured_image && (
+        <div className="content-wrap article-cover">
+          <Image
+            src={post.featured_image.url}
+            alt={post.featured_image.alt || post.title}
+            width={post.featured_image.width || 1200}
+            height={post.featured_image.height || 675}
+            sizes="(max-width: 1100px) 100vw, 1100px"
+            priority
+          />
+        </div>
+      )}
       <div className="article-shell content-wrap">
-        <aside className="article-toc">
-          <strong>In this guide</strong>
-          <a href="#plan">Start with the question</a>
-          <a href="#compare">Compare the evidence</a>
-          <a href="#check">Check the details</a>
-          <a href="#decide">Choose with confidence</a>
-        </aside>
-        <article className="prose editorial-prose">
-          <p className="article-intro">{post.content}</p>
-          <div className="article-callout">
-            <Lightbulb />
-            <div>
-              <strong>The useful rule</strong>
-              <p>
-                The best choice is the one that fits your needs after the noise
-                and urgency have been removed.
-              </p>
-            </div>
-          </div>
-          <h2 id="plan">Start with the question you need to answer</h2>
-          <p>
-            Begin with the outcome you need. Write down the few qualities that
-            would make an option useful, comfortable or worthwhile in your
-            everyday life. Treat everything else as optional until it proves
-            relevant.
-          </p>
-          <p>
-            Clear criteria make research easier. They help you separate a
-            meaningful improvement from a feature that only sounds impressive in
-            a headline.
-          </p>
-          <h2 id="compare">Compare the evidence, not just the claims</h2>
-          <p>
-            Look for details that can be checked: materials, dimensions,
-            maintenance, long-term cost, independent testing and how an option
-            performs in normal use. Give more weight to evidence that matches
-            your situation.
-          </p>
-          <ul className="article-checklist">
-            <li>
-              <CheckCircle2 />
-              Compare the features that affect your actual use.
-            </li>
-            <li>
-              <CheckCircle2 />
-              Separate essential qualities from convenient extras.
-            </li>
-            <li>
-              <CheckCircle2 />
-              Include setup, upkeep and recurring requirements.
-            </li>
-            <li>
-              <CheckCircle2 />
-              Check warranties, support and return conditions.
-            </li>
-          </ul>
-          <h2 id="check">Check the details before you decide</h2>
-          <p>
-            Specifications, policies and availability can change. Confirm the
-            current details with the original source, especially when size,
-            compatibility, safety or ongoing costs affect the decision.
-          </p>
-          <blockquote>
-            Pause and ask: does this option solve the original problem, or did
-            the presentation change what I thought I needed?
-          </blockquote>
-          <h2 id="decide">Choose with confidence</h2>
-          <p>
-            Give yourself a brief pause before committing. Revisit your original
-            criteria and choose the option that meets them with the fewest
-            compromises. A calm decision is more useful than one driven by
-            novelty or urgency.
-          </p>
-          <div className="article-summary">
-            <strong>Before you choose</strong>
-            <ol>
-              <li>Restate the result you need.</li>
-              <li>Compare the qualities that matter most.</li>
-              <li>Verify important claims with primary sources.</li>
-              <li>Consider maintenance and long-term effort.</li>
-              <li>Take a pause, then make the decision.</li>
-            </ol>
-          </div>
-        </article>
+        {toc.length > 1 && (
+          <aside className="article-toc">
+            <strong>In this article</strong>
+            {toc.map((item) => (
+              <a href={`#${item.id}`} key={item.id}>
+                {item.text}
+              </a>
+            ))}
+          </aside>
+        )}
+        <article
+          className="prose editorial-prose"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       </div>
+      {post.tags.length > 0 && (
+        <div className="content-wrap article-tags">
+          {post.tags.map((tag) => (
+            <Link href={`/tag/${tag.slug}`} key={tag.id}>
+              #{tag.name}
+            </Link>
+          ))}
+        </div>
+      )}
       {related.length > 0 && (
         <section className="related-reading">
           <div className="content-wrap">
             <header className="blog-channel-head">
               <div>
                 <span>Continue reading</span>
-                <h2>More useful guides</h2>
-                <p>Practical ideas for your next decision.</p>
+                <h2>More {primary ? primary.name.toLowerCase() : "articles"}</h2>
               </div>
-              <Link href="/#stories">
-                Browse all articles <ArrowRight size={16} />
+              <Link href={primary ? `/category/${primary.slug}` : "/blog"}>
+                Browse all <ArrowRight size={16} />
               </Link>
             </header>
-            <div className="blog-story-grid">
-              {related.map((item) => (
-                <Link
-                  className="blog-story-card"
-                  href={`/blog/${item.slug}`}
-                  key={item.id}
-                >
-                  <span>{item.category}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.excerpt}</p>
-                  <small>
-                    Read article <ArrowRight size={15} />
-                  </small>
-                </Link>
-              ))}
-            </div>
+            <PostGrid posts={related} />
           </div>
         </section>
       )}

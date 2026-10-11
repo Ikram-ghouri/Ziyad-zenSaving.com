@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Header } from "@/components/interactive";
+import { Header, type NavLink } from "@/components/interactive";
 import { Analytics } from "@/components/analytics";
-import { siteName, siteUrl } from "@/lib/data";
+import { getPostCategories, siteName, siteUrl } from "@/lib/data";
 import { seoKeywords } from "@/lib/seo";
+import type { Term } from "@/lib/types";
 import "./globals.css";
 import "./enhancements.css";
 
@@ -31,9 +32,26 @@ export const metadata: Metadata = {
       : { index: false, follow: false },
 };
 
-export default function RootLayout({
+/** Navigation should never take the whole site down, so a failure here yields no category links. */
+async function navCategories(): Promise<Term[]> {
+  try {
+    return (await getPostCategories()).slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const categories = await navCategories();
+  const links: NavLink[] = [
+    { title: "Home", href: "/" },
+    { title: "Latest", href: "/blog" },
+    ...categories.map((c) => ({ title: c.name, href: `/category/${c.slug}` })),
+    { title: "Categories", href: "/categories" },
+    { title: "About", href: "/about" },
+  ];
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -66,16 +84,16 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
           }}
         />
-        <Header name={siteName} />
+        <Header name={siteName} links={links} />
         <main>{children}</main>
-        <Footer />
+        <Footer categories={categories} />
         <Analytics />
       </body>
     </html>
   );
 }
 
-function Footer() {
+function Footer({ categories }: { categories: Term[] }) {
   return (
     <footer>
       <div className="footer-grid">
@@ -89,28 +107,34 @@ function Footer() {
             everyday life.
           </p>
           <p className="fine">
-            Independent guides and reviews, written to be clear and useful.
+            Affiliate disclosure: if you buy a product or service after
+            clicking one of our links, we may be paid a commission. All company
+            logos and names are trademarks of their respective owners.
           </p>
         </div>
         <div>
           <strong>Read</strong>
-          <Link href="/#stories">Latest stories</Link>
-          <Link href="/search?q=Buying%20guides">Buying guides</Link>
-          <Link href="/search?q=Reviews">Reviews</Link>
+          <Link href="/blog">Latest stories</Link>
+          {categories.map((c) => (
+            <Link href={`/category/${c.slug}`} key={c.id}>
+              {c.name}
+            </Link>
+          ))}
           <Link href="/categories">All categories</Link>
         </div>
         <div>
           <strong>Explore</strong>
-          <Link href="/">Home</Link>
-          <Link href="/search">Article archive</Link>
           <Link href="/about">About us</Link>
           <Link href="/contact">Contact</Link>
+          <Link href="/faq">FAQ</Link>
+          <Link href="/careers">Careers</Link>
         </div>
         <div>
           <strong>Legal</strong>
           <Link href="/privacy-policy">Privacy policy</Link>
           <Link href="/affiliate-disclosure">Affiliate disclosure</Link>
           <Link href="/terms">Terms</Link>
+          <Link href="/community-guidelines">Community guidelines</Link>
         </div>
       </div>
       <div className="footer-bottom">
