@@ -1,98 +1,118 @@
-import type { Catalog, Store } from "@/lib/types";
+import type { Page, Post, Seo, Term } from "@/lib/types";
 
-const names = [
-  "Adidas",
-  "Amazon",
-  "ASOS",
-  "Best Buy",
-  "Booking.com",
-  "Etsy",
-  "H&M",
-  "iHerb",
-  "Nike",
-  "Sephora",
-  "Target",
-  "Walmart",
-];
-const categories = [
-  "Electronics",
-  "Beauty",
-  "Fashion",
-  "Home & Living",
-  "Health",
-  "Travel",
-];
-const stores: Store[] = names.map((name, index) => ({
-  id: index + 1,
-  slug: name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-$/, ""),
-  name,
-  category: categories[index % categories.length],
-  description: `Explore ${name} and review the current terms before making a purchase.`,
-  rating: 4.5,
-  audiences: index % 2 ? ["student"] : ["teacher", "military"],
-}));
+/**
+ * Sample content for local demo mode (USE_MOCK_DATA=true) only.
+ * The live site never falls back to this data.
+ */
 
-export const mockCatalog: Catalog = {
-  stores,
-  categories,
-  coupons: stores.flatMap((store, index) =>
-    [0, 1].map((variant) => ({
-      id: index * 2 + variant + 1,
-      slug: `${store.slug}-offer-${variant + 1}`,
-      title: variant
-        ? "Free shipping on your next order"
-        : "Selected styles promotion",
-      description: "Illustrative fixture retained for backward compatibility.",
-      type: variant ? ("sale" as const) : ("code" as const),
-      code: variant ? undefined : "ZENDEMO",
-      discount: variant ? "FREE SHIPPING" : "PROMOTION",
-      expires: index === 0 ? "2026-10-08T23:59:59Z" : "2027-12-31T23:59:59Z",
-      is_expired: index === 11 && variant === 1,
-      free_shipping: Boolean(variant),
-      exclusive: index % 3 === 0,
-      used: 125 + index * 37,
-      percent_success: 94,
-      store,
-      categories: [store.category],
-      go_url: `https://www.${store.slug.replace("-", "")}.com`,
-      verified: false,
-    })),
-  ),
-  posts: [
-    {
-      id: 1,
-      slug: "a-smarter-daily-routine",
-      title: "Small routines that make busy days feel lighter",
-      excerpt:
-        "A practical way to plan your week without filling every minute.",
-      content:
-        "Start with the few outcomes that matter most, leave room for changes and review what worked at the end of the week. A useful routine should reduce decisions rather than create another demanding checklist.",
-      category: "Buying guides",
-      date: "2026-10-01",
-    },
-    {
-      id: 2,
-      slug: "how-to-read-a-product-review",
-      title: "How to read a product review critically",
-      excerpt:
-        "The details that separate useful evidence from confident marketing.",
-      content:
-        "Look for clear testing conditions, long-term observations and limits that match your own needs. Strong reviews explain who a product suits, where it falls short and which claims can be checked independently.",
-      category: "Reviews",
-      date: "2026-10-02",
-    },
-    {
-      id: 3,
-      slug: "subscription-box-checklist",
-      title: "Is that subscription box worth it?",
-      excerpt: "A practical checklist before you subscribe.",
-      content:
-        "Compare the contents with what you actually use. Check renewal pricing, delivery frequency and cancellation terms before starting a subscription.",
-      category: "Subscription boxes",
-      date: "2026-10-03",
-    },
-  ],
+const reviews: Term = {
+  id: 2,
+  slug: "reviews",
+  name: "Reviews",
+  description: "Honest product and service reviews.",
+  count: 2,
 };
+const guides: Term = {
+  id: 3,
+  slug: "buying-guides",
+  name: "Buying guides",
+  description: "Research and advice before you buy.",
+  count: 1,
+};
+const savingTag: Term = {
+  id: 10,
+  slug: "saving-tips",
+  name: "Saving tips",
+  description: "",
+  count: 2,
+};
+
+const seo = (title: string, description: string): Seo => ({
+  title,
+  description,
+  canonical: "",
+  og_image: "",
+  noindex: false,
+});
+
+function post(
+  id: number,
+  slug: string,
+  title: string,
+  excerpt: string,
+  categories: Term[],
+  date: string,
+  content: string,
+): Post {
+  return {
+    id,
+    slug,
+    title,
+    excerpt,
+    content,
+    date,
+    modified: date,
+    link: `/${slug}/`,
+    featured_image: null,
+    author: { name: "Zen Saving editors", slug: "editors" },
+    category: categories[0]?.name ?? "Guides",
+    categories,
+    tags: [savingTag],
+    reading_time_minutes: 4,
+    seo: seo(title, excerpt),
+  };
+}
+
+export const mockPosts: Post[] = [
+  post(
+    1,
+    "how-to-read-a-product-review",
+    "How to read a product review critically",
+    "The details that separate useful evidence from confident marketing.",
+    [reviews],
+    "2026-10-02T09:00:00Z",
+    "<p>Look for clear testing conditions, long-term observations and limits that match your own needs.</p><h2>What good reviews include</h2><ul><li>Who the product suits</li><li>Where it falls short</li><li>Claims you can check independently</li></ul>",
+  ),
+  post(
+    2,
+    "subscription-box-checklist",
+    "Is that subscription box worth it?",
+    "A practical checklist before you subscribe.",
+    [guides],
+    "2026-10-03T09:00:00Z",
+    "<p>Compare the contents with what you actually use.</p><h2>Before you subscribe</h2><p>Check renewal pricing, delivery frequency and cancellation terms.</p>",
+  ),
+  post(
+    3,
+    "sample-headphones-review",
+    "Sample review: everyday wireless headphones",
+    "A demo article showing how reviews render on the new site.",
+    [reviews],
+    "2026-10-04T09:00:00Z",
+    "<p>This is sample content for demo mode.</p><blockquote>Replace with real WordPress posts by setting USE_MOCK_DATA=false.</blockquote>",
+  ),
+];
+
+function page(slug: string, title: string, content: string): Page {
+  return {
+    id: slug.length,
+    slug,
+    title,
+    excerpt: "",
+    content,
+    date: "2026-10-01T00:00:00Z",
+    modified: "2026-10-01T00:00:00Z",
+    seo: seo(title, ""),
+  };
+}
+
+export const mockPages: Page[] = [
+  page("about-us", "About Zen Saving", "<p>Demo About page. The live site shows the WordPress “About Us” page.</p>"),
+  page("contact-us", "Contact us", "<p>Demo Contact page.</p>"),
+  page("privacy-policy", "Privacy policy", "<p>Demo Privacy policy.</p>"),
+  page("term-and-conditions", "Terms and conditions", "<p>Demo Terms page.</p>"),
+  page("affiliate-disclosure-policy", "Affiliate disclosure", "<p>Demo Affiliate disclosure.</p>"),
+  page("faq", "FAQ", "<p>Demo FAQ.</p>"),
+  page("community-guidelines", "Community guidelines", "<p>Demo Community guidelines.</p>"),
+  page("careers", "Careers", "<p>Demo Careers page.</p>"),
+];

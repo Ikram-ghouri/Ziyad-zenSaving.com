@@ -4,27 +4,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Leaf, Menu, Search, X } from "lucide-react";
-import type { Post } from "@/lib/types";
+
+type Suggestion = { id: number; slug: string; title: string; category: string };
+export type NavLink = { title: string; href: string };
 
 export function SearchBox() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Post[]>([]);
+  const [results, setResults] = useState<Suggestion[]>([]);
   useEffect(() => {
-    if (query.length < 2) {
-      setResults([]);
-      return;
-    }
     const controller = new AbortController();
-    const timer = setTimeout(
-      () =>
-        fetch(`/api/search?q=${encodeURIComponent(query)}`, {
-          signal: controller.signal,
-        })
-          .then((response) => response.json())
-          .then((data) => setResults(data.posts || []))
-          .catch(() => setResults([])),
-      180,
-    );
+    const timer = setTimeout(() => {
+      if (query.length < 2) {
+        setResults([]);
+        return;
+      }
+      fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+        signal: controller.signal,
+      })
+        .then((response) => response.json())
+        .then((data) => setResults(data.posts || []))
+        .catch(() => setResults([]));
+    }, 180);
     return () => {
       clearTimeout(timer);
       controller.abort();
@@ -47,7 +47,7 @@ export function SearchBox() {
       </form>
       {query.length > 1 && results.length > 0 && (
         <div className="suggestions">
-          {results.slice(0, 5).map((post) => (
+          {results.map((post) => (
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}
@@ -66,21 +66,11 @@ export function SearchBox() {
   );
 }
 
-export function Header({ name }: { name: string }) {
+export function Header({ name, links }: { name: string; links: NavLink[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const links = [
-    ["Home", "/"],
-    ["Latest", "/#stories"],
-    ["Buying guides", "/search?q=Buying%20guides"],
-    ["Reviews", "/search?q=Reviews"],
-    ["Categories", "/categories"],
-    ["About", "/about"],
-  ];
   const isActive = (href: string) =>
-    (href === "/" && pathname === "/") ||
-    (href === "/categories" && pathname === "/categories") ||
-    (href === "/about" && pathname === "/about");
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
   return (
     <header>
       <div className="header-inner">
@@ -94,7 +84,7 @@ export function Header({ name }: { name: string }) {
           </span>
         </Link>
         <nav className={open ? "open" : ""} aria-label="Main navigation">
-          {links.map(([title, href]) => {
+          {links.map(({ title, href }) => {
             const active = isActive(href);
             return (
               <Link

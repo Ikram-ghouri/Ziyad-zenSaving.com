@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getEditorialCatalog } from "@/lib/data";
+import { getPostCategories } from "@/lib/data";
 import { pageMetadata, seoKeywords } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -12,10 +12,7 @@ export const metadata = pageMetadata({
 });
 
 export default async function Categories() {
-  const { posts, categories } = await getEditorialCatalog();
-  const topics = categories.length
-    ? categories
-    : [...new Set(posts.map((post) => post.category))];
+  const categories = await getPostCategories();
   return (
     <>
       <section className="page-hero">
@@ -27,16 +24,18 @@ export default async function Categories() {
         </p>
       </section>
       <div className="content-wrap blog-hub-grid">
-        {topics.map((category, index) => (
-          <Link
-            key={category}
-            href={`/search?q=${encodeURIComponent(category)}`}
-          >
+        {categories.map((category, index) => (
+          <Link key={category.id} href={`/category/${category.slug}`}>
             <b>{String(index + 1).padStart(2, "0")}</b>
-            <span>{category}</span>
+            <span>
+              {category.name} <small>({category.count})</small>
+            </span>
             <ArrowRight />
           </Link>
         ))}
+        {categories.length === 0 && (
+          <div className="empty">No categories yet.</div>
+        )}
       </div>
     </>
   );

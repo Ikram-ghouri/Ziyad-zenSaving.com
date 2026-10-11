@@ -1,76 +1,102 @@
-export type Store = {
+export type Term = {
   id: number;
   slug: string;
   name: string;
-  logo?: string;
-  category: string;
   description: string;
-  rating?: number;
-  audiences: string[];
+  count: number;
 };
-export type Coupon = {
-  id: number;
-  slug: string;
+
+export type FeaturedImage = {
+  url: string;
+  width: number;
+  height: number;
+  alt: string;
+};
+
+export type Seo = {
   title: string;
   description: string;
-  type: "code" | "sale" | "print";
-  code?: string;
-  discount: string;
-  expires: string;
-  is_expired: boolean;
-  free_shipping: boolean;
-  exclusive: boolean;
-  used: number;
-  percent_success: number;
-  store: Store;
-  categories: string[];
-  go_url: string;
-  verified?: boolean;
+  canonical: string;
+  og_image: string;
+  noindex: boolean;
 };
+
 export type Post = {
   id: number;
   slug: string;
   title: string;
   excerpt: string;
-  content: string;
-  category: string;
+  /** Rendered HTML. Only present on single-post responses (or include_content=true). */
+  content?: string;
   date: string;
+  modified: string;
+  link: string;
+  featured_image: FeaturedImage | null;
+  author: { name: string; slug: string };
+  /** First category name, kept for backward compatibility. */
+  category: string;
+  categories: Term[];
+  tags: Term[];
+  reading_time_minutes: number;
+  seo: Seo;
 };
-export type Catalog = {
-  stores: Store[];
-  coupons: Coupon[];
-  posts: Post[];
-  categories: string[];
+
+export type PostList = {
+  items: Post[];
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
 };
-export type EditorialCatalog = { posts: Post[]; categories: string[] };
-export const audiences = [
-  "student",
-  "teacher",
-  "military",
-  "senior",
-  "nurse",
-  "healthcare",
-  "first-responder",
-  "birthday",
-  "credit-card",
-  "gift-card",
-];
+
+export type Page = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  modified: string;
+  seo: Seo;
+};
+
+export type SitemapEntry = { slug: string; modified: string; noindex: boolean };
+
+export type SitemapData = {
+  posts: SitemapEntry[];
+  pages: SitemapEntry[];
+  categories: Term[];
+};
+
+export type RedirectRule = {
+  source: string;
+  destination: string;
+  permanent: boolean;
+};
+
+/**
+ * Frontend route -> WordPress page slug. Must stay in sync with
+ * ZS_Headless_Bridge::page_route_map() in the plugin.
+ */
+export const pageSlugs = {
+  about: "about-us",
+  contact: "contact-us",
+  terms: "term-and-conditions",
+  "affiliate-disclosure": "affiliate-disclosure-policy",
+  "privacy-policy": "privacy-policy",
+  faq: "faq",
+  "community-guidelines": "community-guidelines",
+  careers: "careers",
+} as const;
+
+export type StaticRoute = keyof typeof pageSlugs;
+
 export const label = (value: string) =>
   value
     .split("-")
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
     .join(" ");
-export function filterCoupons(coupons: Coupon[], filter: string) {
-  return coupons.filter((c) =>
-    filter === "Codes"
-      ? c.type === "code"
-      : filter === "Deals"
-        ? c.type === "sale"
-        : filter === "Free shipping"
-          ? c.free_shipping
-          : true,
-  );
-}
+
 export function safeUrl(value: string) {
   try {
     const u = new URL(value);
@@ -78,4 +104,39 @@ export function safeUrl(value: string) {
   } catch {
     return undefined;
   }
+}
+
+export function formatDate(
+  value: string,
+  month: "short" | "long" = "short",
+): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    month,
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+/**
+ * Finds the redirect for a pathname. Supports exact sources and
+ * trailing `:slug*` wildcards (the only pattern the plugin emits).
+ */
+export function matchRedirect(
+  pathname: string,
+  rules: RedirectRule[],
+): RedirectRule | undefined {
+  const path =
+    pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  for (const rule of rules) {
+    const source = rule.source.replace(/\/+$/, "");
+    if (source.endsWith("/:slug*")) {
+      const prefix = source.slice(0, -"/:slug*".length);
+      if (path === prefix || path.startsWith(`${prefix}/`)) return rule;
+    } else if (source === path) {
+      return rule;
+    }
+  }
+  return undefined;
 }

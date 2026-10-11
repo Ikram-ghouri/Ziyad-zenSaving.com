@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEditorialCatalog } from "@/lib/data";
+import { getPosts } from "@/lib/data";
 
 export async function GET(request: NextRequest) {
-  const query = (request.nextUrl.searchParams.get("q") || "")
-    .toLowerCase()
-    .slice(0, 100);
-  const { posts } = await getEditorialCatalog();
-  return NextResponse.json({
-    posts: posts
-      .filter((post) =>
-        `${post.title} ${post.excerpt} ${post.category}`
-          .toLowerCase()
-          .includes(query),
-      )
-      .slice(0, 8),
-  });
+  const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 100);
+  if (query.length < 2) return NextResponse.json({ posts: [] });
+  try {
+    const { items } = await getPosts({ search: query, perPage: 5 });
+    return NextResponse.json({
+      posts: items.map(({ id, slug, title, category }) => ({
+        id,
+        slug,
+        title,
+        category,
+      })),
+    });
+  } catch {
+    return NextResponse.json({ posts: [] }, { status: 502 });
+  }
 }
