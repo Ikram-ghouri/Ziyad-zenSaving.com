@@ -2,7 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
-const ALLOWED_TAG = /^(wordpress|posts|pages|categories|post:[a-z0-9-]+)$/;
+const ALLOWED_TAG = /^(wordpress|posts|pages|categories|site|stores|post:[a-z0-9-]+|store:[a-z0-9-]+)$/;
 
 function secretMatches(provided: string | null) {
   const expected = process.env.WP_REVALIDATE_SECRET;

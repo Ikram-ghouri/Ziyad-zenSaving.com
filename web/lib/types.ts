@@ -66,7 +66,94 @@ export type SitemapData = {
   posts: SitemapEntry[];
   pages: SitemapEntry[];
   categories: Term[];
+  stores?: { slug: string }[];
 };
+
+/** Lean store used in directories and grids. */
+export type StoreSummary = {
+  id: number;
+  slug: string;
+  name: string;
+  logo: string;
+  count: number;
+};
+
+export type StoreList = {
+  items: StoreSummary[];
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+};
+
+export type Coupon = {
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  content?: string;
+  type: "code" | "sale" | "print";
+  code: string;
+  discount: string;
+  expires: string;
+  is_expired: boolean;
+  free_shipping: boolean;
+  exclusive: boolean;
+  used: number;
+  percent_success: number;
+  go_url: string;
+  verified?: boolean;
+};
+
+export type StoreDetail = {
+  id: number;
+  slug: string;
+  name: string;
+  logo: string;
+  description: string;
+  rating: number;
+  url: string;
+  aff_url: string;
+  coupon_count: number;
+  coupons: Coupon[];
+  expired_coupons: Coupon[];
+  seo: Seo;
+};
+
+export type Slide = {
+  image: FeaturedImage;
+  title: string;
+  description: string;
+  /** Internal path ("/store/x") or external URL; empty when the slide has no link. */
+  href: string;
+};
+
+export type SiteInfo = {
+  name: string;
+  description: string;
+  logo: string;
+  slider: { autoplay_ms: number; slides: Slide[] };
+  popular_stores: StoreSummary[];
+  store_count: number;
+};
+
+export const storeLetters = [
+  ..."abcdefghijklmnopqrstuvwxyz".split(""),
+  "0-9",
+] as const;
+
+/** Normalises old absolute WordPress links (e.g. https://zensaving.com/store/x/) to frontend paths. */
+export function toInternalHref(href: string, wpOrigins: string[] = []): string {
+  if (!href || href === "#") return "";
+  for (const origin of wpOrigins) {
+    if (origin && href.startsWith(origin)) {
+      const path = href.slice(origin.length) || "/";
+      return path.length > 1 ? path.replace(/\/+$/, "") : path;
+    }
+  }
+  if (href.startsWith("/")) return href.length > 1 ? href.replace(/\/+$/, "") : href;
+  return safeUrl(href) ?? "";
+}
 
 export type RedirectRule = {
   source: string;

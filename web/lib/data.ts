@@ -1,11 +1,14 @@
 import { cache } from "react";
-import { mockPages, mockPosts } from "@/mocks/catalog";
+import { mockPages, mockPosts, mockSite, mockStores, mockStoreDetail } from "@/mocks/catalog";
 import type {
   Page,
   Post,
   PostList,
   RedirectRule,
+  SiteInfo,
   SitemapData,
+  StoreDetail,
+  StoreList,
   Term,
 } from "./types";
 
@@ -158,6 +161,77 @@ export const getSitemap = cache(async (): Promise<SitemapData> => {
     };
   return wp<SitemapData>("sitemap", ["posts", "pages", "categories"]);
 });
+
+export const getSite = cache(async (): Promise<SiteInfo> => {
+  if (demo) return mockSite;
+  return wp<SiteInfo>("site", ["site"]);
+});
+
+export type StoreQuery = {
+  page?: number;
+  perPage?: number;
+  letter?: string;
+  search?: string;
+};
+
+export const getStores = cache(
+  async (query: StoreQuery = {}): Promise<StoreList> => {
+    const perPage = query.perPage ?? 60;
+    const page = Math.max(1, query.page ?? 1);
+    if (demo) {
+      const search = query.search?.toLowerCase();
+      const all = mockStores.filter(
+        (s) =>
+          (!search || s.name.toLowerCase().includes(search)) &&
+          (!query.letter ||
+            (query.letter === "0-9"
+              ? !/^[a-z]/i.test(s.name)
+              : s.name.toLowerCase().startsWith(query.letter))),
+      );
+      return {
+        items: all.slice((page - 1) * perPage, page * perPage),
+        page,
+        per_page: perPage,
+        total: all.length,
+        total_pages: Math.max(1, Math.ceil(all.length / perPage)),
+      };
+    }
+    const params = new URLSearchParams({
+      lean: "1",
+      page: String(page),
+      per_page: String(perPage),
+    });
+    if (query.letter) params.set("letter", query.letter);
+    if (query.search) params.set("search", query.search.slice(0, 100));
+    return wp<StoreList>(`stores?${params}`, ["stores"]);
+  },
+);
+
+export const getStore = cache(
+  async (slug: string): Promise<StoreDetail | null> => {
+    if (demo) return slug === mockStoreDetail.slug ? mockStoreDetail : null;
+    return wpOrNull<StoreDetail>(`stores/${encodeURIComponent(slug)}`, [
+      "stores",
+      `store:${slug}`,
+    ]);
+  },
+);
+
+/** Origins whose absolute links should be rewritten to frontend paths (old WordPress URLs). */
+export function wpOrigins(): string[] {
+  const origins = new Set<string>();
+  for (const value of [process.env.WP_API_URL, process.env.WP_SITE_URL]) {
+    if (!value) continue;
+    try {
+      const url = new URL(value);
+      origins.add(url.origin);
+      origins.add(url.origin.replace("://www.", "://"));
+    } catch {
+      // ignore malformed values
+    }
+  }
+  return [...origins];
+}
 
 /** Redirect rules, fetched without the Next data cache so proxy.ts can use them. */
 export async function fetchRedirects(): Promise<RedirectRule[]> {

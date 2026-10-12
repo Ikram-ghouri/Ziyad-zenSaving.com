@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPosts } from "@/lib/data";
+import { getPosts, getStores } from "@/lib/data";
 
 export async function GET(request: NextRequest) {
   const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 100);
-  if (query.length < 2) return NextResponse.json({ posts: [] });
+  if (query.length < 2) return NextResponse.json({ posts: [], stores: [] });
   try {
-    const { items } = await getPosts({ search: query, perPage: 5 });
+    const [posts, stores] = await Promise.all([
+      getPosts({ search: query, perPage: 4 }),
+      getStores({ search: query, perPage: 4 }),
+    ]);
     return NextResponse.json({
-      posts: items.map(({ id, slug, title, category }) => ({
+      stores: stores.items.map(({ id, slug, name }) => ({ id, slug, name })),
+      posts: posts.items.map(({ id, slug, title, category }) => ({
         id,
         slug,
         title,
@@ -15,6 +19,6 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch {
-    return NextResponse.json({ posts: [] }, { status: 502 });
+    return NextResponse.json({ posts: [], stores: [] }, { status: 502 });
   }
 }
