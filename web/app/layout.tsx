@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Header, type NavLink } from "@/components/interactive";
 import { Analytics } from "@/components/analytics";
-import { getPostCategories, siteName, siteUrl } from "@/lib/data";
+import { getPostCategories, getSite, siteName, siteUrl } from "@/lib/data";
 import { seoKeywords } from "@/lib/seo";
 import type { Term } from "@/lib/types";
 import "./globals.css";
@@ -41,12 +41,21 @@ async function navCategories(): Promise<Term[]> {
   }
 }
 
+async function siteLogo(): Promise<string> {
+  try {
+    return (await getSite()).logo;
+  } catch {
+    return "";
+  }
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const categories = await navCategories();
+  const [categories, logo] = await Promise.all([navCategories(), siteLogo()]);
   const links: NavLink[] = [
     { title: "Home", href: "/" },
+    { title: "Stores", href: "/stores" },
     { title: "Latest", href: "/blog" },
     ...categories.map((c) => ({ title: c.name, href: `/category/${c.slug}` })),
     { title: "Categories", href: "/categories" },
@@ -84,7 +93,7 @@ export default async function RootLayout({
             __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
           }}
         />
-        <Header name={siteName} links={links} />
+        <Header name={siteName} links={links} logo={logo} />
         <main>{children}</main>
         <Footer categories={categories} />
         <Analytics />
@@ -124,6 +133,7 @@ function Footer({ categories }: { categories: Term[] }) {
         </div>
         <div>
           <strong>Explore</strong>
+          <Link href="/stores">All stores</Link>
           <Link href="/about">About us</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/faq">FAQ</Link>

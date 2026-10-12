@@ -30,6 +30,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
     });
   }
+  entries.push({ url: `${siteUrl}/stores`, changeFrequency: "daily" });
+  for (const store of data.stores ?? []) {
+    entries.push({
+      url: `${siteUrl}/store/${store.slug}`,
+      changeFrequency: "daily",
+    });
+  }
   for (const page of data.pages) {
     const route = routeBySlug[page.slug];
     if (!route || page.noindex) continue;

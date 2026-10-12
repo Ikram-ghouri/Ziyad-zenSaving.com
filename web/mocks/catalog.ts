@@ -1,4 +1,13 @@
-import type { Page, Post, Seo, Term } from "@/lib/types";
+import type {
+  Coupon,
+  Page,
+  Post,
+  Seo,
+  SiteInfo,
+  StoreDetail,
+  StoreSummary,
+  Term,
+} from "@/lib/types";
 
 /**
  * Sample content for local demo mode (USE_MOCK_DATA=true) only.
@@ -116,3 +125,56 @@ export const mockPages: Page[] = [
   page("community-guidelines", "Community guidelines", "<p>Demo Community guidelines.</p>"),
   page("careers", "Careers", "<p>Demo Careers page.</p>"),
 ];
+
+
+const storeNames = ["Amazon", "Adidas", "Best Buy", "Ever Pretty", "Foscam", "Kastking", "Lilicloth", "Manly", "Nike", "Piscifun", "Vapesourcing", "Zappos", "1-800 Flowers"];
+export const mockStores: StoreSummary[] = storeNames
+  .map((name, i) => ({
+    id: i + 1,
+    slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    name,
+    logo: "",
+    count: (i % 4) + 1,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const mockCoupon = (id: number, title: string, type: Coupon["type"], code: string, expired = false): Coupon => ({
+  id,
+  slug: `coupon-${id}`,
+  title,
+  description: `Demo coupon: ${title}.`,
+  type,
+  code,
+  discount: title.toUpperCase(),
+  expires: expired ? "2026-01-01T00:00:00Z" : "2027-12-31T23:59:59Z",
+  is_expired: expired,
+  free_shipping: false,
+  exclusive: false,
+  used: 12 * id,
+  percent_success: 92,
+  go_url: "https://example.com/",
+});
+
+export const mockStoreDetail: StoreDetail = {
+  id: 1,
+  slug: "amazon",
+  name: "Amazon",
+  logo: "",
+  description: "Demo store page. With USE_MOCK_DATA=false this shows the real store from WordPress.",
+  rating: 4.5,
+  url: "https://example.com",
+  aff_url: "https://example.com",
+  coupon_count: 3,
+  coupons: [mockCoupon(1, "20% off", "code", "DEMO20"), mockCoupon(2, "Free shipping", "sale", "")],
+  expired_coupons: [mockCoupon(3, "10% off", "code", "OLD10", true)],
+  seo: seo("Amazon Coupons & Promo Codes", "Demo store"),
+};
+
+export const mockSite: SiteInfo = {
+  name: "Zen Saving",
+  description: "Demo mode",
+  logo: "",
+  slider: { autoplay_ms: 3000, slides: [] },
+  popular_stores: mockStores.slice(0, 12),
+  store_count: mockStores.length,
+};

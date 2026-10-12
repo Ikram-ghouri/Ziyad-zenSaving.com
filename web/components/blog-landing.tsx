@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getPostCategories, getPosts } from "@/lib/data";
+import { getPostCategories, getPosts, getSite, wpOrigins } from "@/lib/data";
+import { toInternalHref, type SiteInfo } from "@/lib/types";
 import { PostCard } from "@/components/post-card";
+import { HeroCarousel } from "@/components/hero-carousel";
+import { StoreGrid } from "@/components/store-grid";
 
 const intros: Record<string, string> = {
   reviews: "Clear opinions that help you compare before you buy.",
@@ -10,10 +13,17 @@ const intros: Record<string, string> = {
 };
 
 export default async function BlogLanding() {
-  const [latest, categories] = await Promise.all([
+  const [latest, categories, site] = await Promise.all([
     getPosts({ perPage: 9 }),
     getPostCategories(),
+    // Branding/banners are optional: if they fail, the blog still renders.
+    getSite().catch((): SiteInfo | null => null),
   ]);
+  const origins = wpOrigins();
+  const slides = (site?.slider.slides ?? []).map((slide) => ({
+    ...slide,
+    href: toInternalHref(slide.href, origins),
+  }));
   const posts = latest.items;
   const channels = categories.filter((c) => c.count > 0).slice(0, 3);
   const channelPosts = await Promise.all(
@@ -24,25 +34,48 @@ export default async function BlogLanding() {
 
   return (
     <>
-      <section className="blog-showcase">
-        <div className="blog-showcase-inner">
-          <span>Thoughtful ideas start here</span>
-          <h1>
-            Good finds. <em>Better choices.</em>
+      {slides.length > 0 ? (
+        <div className="content-wrap hero-wrap">
+          <h1 className="sr-only">
+            {site?.name || "Zen Saving"} – coupons, promo codes and saving guides
           </h1>
-          <p>
-            Read practical guides, thoughtful reviews and useful ideas for
-            making confident choices in everyday life.
-          </p>
-          <Link href="#stories">
-            Explore latest stories <ArrowRight size={18} />
-          </Link>
-          <div className="blog-dots" aria-hidden="true">
-            <i />
-            <i />
-          </div>
+          <HeroCarousel slides={slides} intervalMs={site?.slider.autoplay_ms || 3000} />
         </div>
-      </section>
+      ) : (
+        <section className="blog-showcase">
+          <div className="blog-showcase-inner">
+            <span>Thoughtful ideas start here</span>
+            <h1>
+              Good finds. <em>Better choices.</em>
+            </h1>
+            <p>
+              Coupons, promo codes and practical guides for making confident
+              choices in everyday life.
+            </p>
+            <Link href="/stores">
+              Browse all stores <ArrowRight size={18} />
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {site && site.popular_stores.length > 0 && (
+        <section className="content-wrap popular-stores">
+          <div className="blog-channel-head">
+            <div>
+              <span>Popular stores</span>
+              <h2>Top stores with coupons today</h2>
+              <p>
+                {site.store_count.toLocaleString("en-US")} stores and counting.
+              </p>
+            </div>
+            <Link href="/stores">
+              View all stores <ArrowRight size={16} />
+            </Link>
+          </div>
+          <StoreGrid stores={site.popular_stores} />
+        </section>
+      )}
 
       {posts[0] && (
         <section className="blog-featured content-wrap">

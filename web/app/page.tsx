@@ -2,9 +2,9 @@ import BlogLanding from "@/components/blog-landing";
 import { pageMetadata, seoKeywords } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Practical Guides, Reviews & Better Ideas",
+  title: "Coupons, Promo Codes & Saving Guides",
   description:
-    "Explore practical guides, honest reviews and useful ideas for more confident everyday choices.",
+    "Find verified coupon codes and deals from 1,600+ stores, plus practical guides and honest reviews.",
   path: "/",
   keywords: [...seoKeywords.blog, ...seoKeywords.home],
 });

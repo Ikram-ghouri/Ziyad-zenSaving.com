@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, matchRedirect, safeUrl, type RedirectRule } from "./types";
+import { formatDate, matchRedirect, safeUrl, toInternalHref, type RedirectRule } from "./types";
 import { sanitizeContent, withHeadingIds } from "./html";
 
 const rules: RedirectRule[] = [
@@ -45,5 +45,20 @@ describe("helpers", () => {
     const { html, toc } = withHeadingIds("<h2>First part</h2><p>x</p><h2>First part</h2>");
     expect(toc.map((t) => t.id)).toEqual(["first-part", "first-part-2"]);
     expect(html).toContain('<h2 id="first-part">');
+  });
+});
+
+describe("toInternalHref", () => {
+  const origins = ["https://zensaving.com"];
+  it("turns old WordPress store links into frontend paths", () => {
+    expect(toInternalHref("https://zensaving.com/store/cuts-clothing/", origins)).toBe("/store/cuts-clothing");
+  });
+  it("drops empty and placeholder links", () => {
+    expect(toInternalHref("#", origins)).toBe("");
+    expect(toInternalHref("", origins)).toBe("");
+  });
+  it("keeps safe external links and rejects unsafe ones", () => {
+    expect(toInternalHref("https://shop.example/x", origins)).toBe("https://shop.example/x");
+    expect(toInternalHref("javascript:alert(1)", origins)).toBe("");
   });
 });
