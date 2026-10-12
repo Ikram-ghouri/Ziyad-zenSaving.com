@@ -114,7 +114,8 @@ export type Coupon = {
   description: string;
   content?: string;
   type: "code" | "sale" | "print";
-  code: string;
+  /** Whether WordPress has a code for this offer. The code itself is never sent to the frontend. */
+  has_code?: boolean;
   discount: string;
   expires: string;
   is_expired: boolean;
