@@ -86,7 +86,15 @@ export default async function BlogLanding() {
             </h2>
           </header>
           <div className="blog-editorial-grid">
-            <Link className="blog-lead-story" href={`/blog/${posts[0].slug}`}>
+            <Link
+              className={`blog-lead-story${posts[0].featured_image ? " has-image" : ""}`}
+              href={`/blog/${posts[0].slug}`}
+              style={
+                posts[0].featured_image
+                  ? { backgroundImage: `url(${JSON.stringify(posts[0].featured_image.url)})` }
+                  : undefined
+              }
+            >
               <span>{posts[0].category}</span>
               <div>
                 <small>
