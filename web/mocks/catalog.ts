@@ -1,5 +1,7 @@
 import type {
   Coupon,
+  CouponCategory,
+  CouponCategoryDetail,
   Page,
   Post,
   Seo,
@@ -177,4 +179,20 @@ export const mockSite: SiteInfo = {
   slider: { autoplay_ms: 3000, slides: [] },
   popular_stores: mockStores.slice(0, 12),
   store_count: mockStores.length,
+};
+
+export const mockCategories: CouponCategory[] = [
+  { id: 1, slug: "fashion", name: "Fashion", parent: "", count: 12, icon: "", image: "" },
+  { id: 2, slug: "electronics", name: "Electronics", parent: "", count: 8, icon: "", image: "" },
+  { id: 3, slug: "shoes", name: "Shoes", parent: "Fashion", count: 4, icon: "", image: "" },
+];
+
+export const mockCategoryDetail: CouponCategoryDetail = {
+  ...mockCategories[0],
+  description: "Demo category.",
+  coupons: mockStoreDetail.coupons.map((c) => ({ ...c, store: { slug: "amazon", name: "Amazon", logo: "" } })),
+  page: 1,
+  total: 2,
+  total_pages: 1,
+  seo: seo("Fashion Coupons & Promo Codes", "Demo category"),
 };

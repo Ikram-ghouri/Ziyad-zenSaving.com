@@ -37,6 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
     });
   }
+  for (const category of data.coupon_categories ?? []) {
+    entries.push({
+      url: `${siteUrl}/coupon-category/${category.slug}`,
+      changeFrequency: "daily",
+    });
+  }
   for (const page of data.pages) {
     const route = routeBySlug[page.slug];
     if (!route || page.noindex) continue;

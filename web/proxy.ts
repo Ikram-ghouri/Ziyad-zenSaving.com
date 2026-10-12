@@ -30,9 +30,15 @@ async function rules(): Promise<RedirectRule[]> {
   return inflight;
 }
 
+/**
+ * Routes this frontend owns. A stale or misconfigured redirect list from WordPress
+ * (e.g. served from a page cache) must never send these elsewhere.
+ */
+const OWN_ROUTES = /^\/(?:$|stores$|store\/[^/]+$|coupon-category\/[^/]+$|categories$|blog(?:\/[^/]+)?$|search$)/;
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const rule = matchRedirect(pathname, await rules());
+  const rule = OWN_ROUTES.test(pathname.replace(/\/+$/, "") || "/") ? undefined : matchRedirect(pathname, await rules());
   if (!rule) {
     // Replaces Next's built-in trailing-slash redirect (disabled in next.config.ts).
     if (pathname.length > 1 && pathname.endsWith("/")) {

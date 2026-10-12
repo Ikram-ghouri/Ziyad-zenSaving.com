@@ -1520,3 +1520,23 @@ footer {
 .shop-hero .primary-link{display:inline-flex;align-items:center;gap:6px;width:auto}
 .store-search svg{flex:0 0 auto;color:var(--muted,#65736e)}
 .store-search button{flex:0 0 auto}
+
+/* Featured blog story with its product image */
+.blog-lead-story.has-image{background-size:cover;background-position:center;position:relative;isolation:isolate}
+.blog-lead-story.has-image::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg,rgba(17,20,24,.15) 0%,rgba(17,20,24,.55) 45%,rgba(17,20,24,.92) 100%)}
+/* Shop categories */
+.section-heading{font-size:1.4rem;font-weight:800;margin:40px 0 14px}
+.category-grid{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.category-tile{position:relative;display:block;border-radius:16px;overflow:hidden;aspect-ratio:4/3;color:#fff;text-decoration:none;background:#222}
+.category-tile img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.category-tile:hover img{transform:scale(1.05)}
+.category-tile span{position:absolute;inset:auto 0 0 0;padding:14px;background:linear-gradient(transparent,rgba(0,0,0,.75));display:flex;flex-direction:column}
+.category-tile small{opacity:.85}
+.category-list{list-style:none;padding:0;margin:0;columns:4 200px;column-gap:24px}
+.category-list li{break-inside:avoid;margin:0 0 6px}
+.category-list a{display:flex;gap:6px;align-items:baseline;text-decoration:none;color:inherit;padding:4px 0}
+.category-list a:hover{color:var(--green,#126245)}
+.category-list em{color:var(--muted,#65736e);font-style:normal;font-size:.85rem}
+.category-list small{margin-left:auto;color:var(--muted,#65736e);font-size:.8rem}
+.coupon-store{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;text-decoration:none;color:var(--green,#126245);font-weight:800;font-size:.8rem;background:#fff;border:1px solid var(--line,#e5e7eb);border-radius:10px;padding:10px 6px}
+.coupon-store img{width:90px;height:42px;object-fit:contain}

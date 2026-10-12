@@ -67,6 +67,27 @@ export type SitemapData = {
   pages: SitemapEntry[];
   categories: Term[];
   stores?: { slug: string }[];
+  coupon_categories?: { slug: string }[];
+};
+
+/** Shop (coupon) category, e.g. Fashion, Electronics. */
+export type CouponCategory = {
+  id: number;
+  slug: string;
+  name: string;
+  parent: string;
+  count: number;
+  icon: string;
+  image: string;
+};
+
+export type CouponCategoryDetail = CouponCategory & {
+  description: string;
+  coupons: Coupon[];
+  page: number;
+  total: number;
+  total_pages: number;
+  seo: Seo;
 };
 
 /** Lean store used in directories and grids. */
@@ -103,6 +124,8 @@ export type Coupon = {
   percent_success: number;
   go_url: string;
   verified?: boolean;
+  /** Present when coupons are listed outside their store page (e.g. category pages). */
+  store?: { slug: string; name: string; logo: string };
 };
 
 export type StoreDetail = {

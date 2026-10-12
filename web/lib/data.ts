@@ -1,6 +1,16 @@
 import { cache } from "react";
-import { mockPages, mockPosts, mockSite, mockStores, mockStoreDetail } from "@/mocks/catalog";
+import {
+  mockCategories,
+  mockCategoryDetail,
+  mockPages,
+  mockPosts,
+  mockSite,
+  mockStoreDetail,
+  mockStores,
+} from "@/mocks/catalog";
 import type {
+  CouponCategory,
+  CouponCategoryDetail,
   Page,
   Post,
   PostList,
@@ -214,6 +224,21 @@ export const getStore = cache(
       "stores",
       `store:${slug}`,
     ]);
+  },
+);
+
+export const getCouponCategories = cache(async (): Promise<CouponCategory[]> => {
+  if (demo) return mockCategories;
+  return wp<CouponCategory[]>("categories", ["coupon-categories"]);
+});
+
+export const getCouponCategory = cache(
+  async (slug: string, page = 1): Promise<CouponCategoryDetail | null> => {
+    if (demo) return slug === mockCategoryDetail.slug ? mockCategoryDetail : null;
+    return wpOrNull<CouponCategoryDetail>(
+      `categories/${encodeURIComponent(slug)}?page=${Math.max(1, page)}`,
+      ["coupon-categories", `coupon-category:${slug}`],
+    );
   },
 );
 

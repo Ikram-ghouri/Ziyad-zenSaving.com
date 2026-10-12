@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Check, Copy, ExternalLink, Tag } from "lucide-react";
 import { formatDate, safeUrl, type Coupon } from "@/lib/types";
@@ -9,7 +10,13 @@ import { formatDate, safeUrl, type Coupon } from "@/lib/types";
  * affiliate link (WordPress /out/{id}, so click tracking keeps working).
  * "Get Deal" opens the affiliate link directly.
  */
-export function CouponCard({ coupon }: { coupon: Coupon }) {
+export function CouponCard({
+  coupon,
+  showStore = false,
+}: {
+  coupon: Coupon;
+  showStore?: boolean;
+}) {
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState(false);
   const url = safeUrl(coupon.go_url);
@@ -33,12 +40,27 @@ export function CouponCard({ coupon }: { coupon: Coupon }) {
 
   return (
     <article className={`coupon-card${coupon.is_expired ? " expired" : ""}`}>
-      <div className="coupon-badge">
-        <Tag size={16} />
-        <span>{coupon.discount}</span>
-      </div>
+      {showStore && coupon.store ? (
+        <Link href={`/store/${coupon.store.slug}`} className="coupon-store">
+          {coupon.store.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element -- store logos come from WordPress
+            <img src={coupon.store.logo} alt={`${coupon.store.name} logo`} loading="lazy" />
+          ) : (
+            <strong>{coupon.store.name}</strong>
+          )}
+          <small>{coupon.discount}</small>
+        </Link>
+      ) : (
+        <div className="coupon-badge">
+          <Tag size={16} />
+          <span>{coupon.discount}</span>
+        </div>
+      )}
       <div className="coupon-body">
-        <span className="coupon-type">{isCode ? "Code" : "Deal"}</span>
+        <span className="coupon-type">
+          {isCode ? "Code" : "Deal"}
+          {showStore && coupon.store ? ` · ${coupon.store.name}` : ""}
+        </span>
         <h3>{coupon.title}</h3>
         {coupon.description && <p>{coupon.description}</p>}
         <div className="coupon-meta">
