@@ -56,10 +56,9 @@ export default async function RootLayout({
   const links: NavLink[] = [
     { title: "Home", href: "/" },
     { title: "Stores", href: "/stores" },
-    { title: "Latest", href: "/blog" },
     ...categories.map((c) => ({ title: c.name, href: `/category/${c.slug}` })),
     { title: "Categories", href: "/categories" },
-    { title: "About", href: "/about" },
+    { title: "Blogs", href: "/blog" },
   ];
   const structuredData = {
     "@context": "https://schema.org",
