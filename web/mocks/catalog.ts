@@ -140,13 +140,13 @@ export const mockStores: StoreSummary[] = storeNames
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
-const mockCoupon = (id: number, title: string, type: Coupon["type"], code: string, expired = false): Coupon => ({
+const mockCoupon = (id: number, title: string, type: Coupon["type"], hasCode: boolean, expired = false): Coupon => ({
   id,
   slug: `coupon-${id}`,
   title,
   description: `Demo coupon: ${title}.`,
   type,
-  code,
+  has_code: hasCode,
   discount: title.toUpperCase(),
   expires: expired ? "2026-01-01T00:00:00Z" : "2027-12-31T23:59:59Z",
   is_expired: expired,
@@ -167,8 +167,8 @@ export const mockStoreDetail: StoreDetail = {
   url: "https://example.com",
   aff_url: "https://example.com",
   coupon_count: 3,
-  coupons: [mockCoupon(1, "20% off", "code", "DEMO20"), mockCoupon(2, "Free shipping", "sale", "")],
-  expired_coupons: [mockCoupon(3, "10% off", "code", "OLD10", true)],
+  coupons: [mockCoupon(1, "20% off", "code", true), mockCoupon(2, "Free shipping", "sale", false)],
+  expired_coupons: [mockCoupon(3, "10% off", "code", true, true)],
   seo: seo("Amazon Coupons & Promo Codes", "Demo store"),
 };
 
