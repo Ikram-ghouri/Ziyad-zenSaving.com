@@ -51,7 +51,8 @@ export function wpMetadata(
 ): Metadata {
   const images = seo.og_image ? [{ url: seo.og_image }] : undefined;
   return {
-    title: seo.title,
+    // Yoast titles already contain the site name, so skip the layout's "| Zen Saving" template.
+    title: { absolute: seo.title },
     description: seo.description,
     // Canonical always points at the new frontend URL. A Yoast canonical that
     // still uses the old WordPress permalink would point Google at a redirect.

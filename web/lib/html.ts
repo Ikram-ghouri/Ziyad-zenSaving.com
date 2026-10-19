@@ -28,6 +28,8 @@ export function sanitizeContent(html: string): string {
       "www.youtube-nocookie.com",
       "player.vimeo.com",
     ],
+    // Drop iframes whose src was removed because the host is not allowed.
+    exclusiveFilter: (frame) => frame.tag === "iframe" && !frame.attribs.src,
     transformTags: {
       a: (tagName, attribs) => {
         const external = /^https?:\/\//i.test(attribs.href || "");
