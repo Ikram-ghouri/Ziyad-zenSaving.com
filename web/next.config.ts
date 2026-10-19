@@ -37,6 +37,7 @@ const config: NextConfig = {
       "/wp-admin",
       "/wp-admin/:path*",
       "/wp-login.php",
+      "/wp-cron.php",
       "/wp-json/:path*",
       "/out/:path*",
       "/go-store/:path*",
