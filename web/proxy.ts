@@ -56,5 +56,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Skip Next internals, API routes and files with an extension.
-  matcher: ["/((?!_next/|api/|.*\\.[a-zA-Z0-9]+$).*)"],
+  // WordPress-owned paths (wp-admin, wp-json, /out/...) are rewritten in next.config.ts.
+  matcher: ["/((?!_next/|api/|wp-admin|wp-json|wp-content|wp-includes|out/|go-store/|.*\\.[a-zA-Z0-9]+$).*)"],
 };
